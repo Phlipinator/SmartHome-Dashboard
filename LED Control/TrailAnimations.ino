@@ -1,8 +1,12 @@
 #include <FastLED.h>
 #include <iostream>
 
-// Define LED matrix dimensions
+// CONSTANTS
 const int MATRIX_SIZE = 16;
+const int SHORT_DELAY = 10;
+const int LONG_DELAY = 100;
+const int REPETITIONS = 6;
+const bool DEBUG = true;
 
 #define LED_PIN 5
 #define NUM_LEDS 1151
@@ -10,9 +14,7 @@ const int MATRIX_SIZE = 16;
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
 
-bool debug = true;
-
-// Create a 16x16 LED matrix
+// Unique Positions of the LEDs in the 16 x 16 martix are stored here
 int matrix[MATRIX_SIZE][MATRIX_SIZE][2] = {
     {{61, 62}, {58}, {55, 54}, {51}, {47}, {43, 44}, {40}, {36, 37}, {33}, {29}, {25, 26}, {22}, {18}, {15, 14}, {11}, {7, 8}},
     {{84}, {88}, {91, 92}, {95}, {98, 99}, {102}, {106}, {109, 110}, {113}, {116, 117}, {120}, {124}, {127, 128}, {131}, {134, 135}, {138}},
@@ -38,6 +40,7 @@ void setup()
     FastLED.setBrightness(50);
 }
 
+// Calculates a route between two sets of coordinates
 void animateTrail(int r1, int c1, int r2, int c2)
 {
     // Adjusting to zero-based indexing
@@ -58,7 +61,7 @@ void animateTrail(int r1, int c1, int r2, int c2)
         {
             for (int c = c1; c <= c2; c++)
             {
-                LEDProcessing(r1, c);
+                LEDProcessing(r1, c, true);
             }
             c1 = c2;
         }
@@ -66,7 +69,7 @@ void animateTrail(int r1, int c1, int r2, int c2)
         {
             for (int c = c1; c >= c2; c--)
             {
-                LEDProcessing(r1, c);
+                LEDProcessing(r1, c, true);
             }
             c1 = c2;
         }
@@ -76,14 +79,14 @@ void animateTrail(int r1, int c1, int r2, int c2)
         {
             for (int r = r1; r <= r2; r++)
             {
-                LEDProcessing(r, c1);
+                LEDProcessing(r, c1, true);
             }
         }
         else
         {
             for (int r = r1; r >= r2; r--)
             {
-                LEDProcessing(r, c1);
+                LEDProcessing(r, c1, true);
             }
         }
     }
@@ -93,7 +96,8 @@ void animateTrail(int r1, int c1, int r2, int c2)
     FastLED.show();
 }
 
-void LEDProcessing(int row, int col)
+// Turn LED(s) for any given position on
+void LEDProcessing(int row, int col, bool activate)
 {
     // Check if there's a LED at the current position
     if (matrix[row][col][0] != 0)
@@ -105,9 +109,32 @@ void LEDProcessing(int row, int col)
     {
         leds[matrix[row][col][1]] = CRGB::Red;
     }
+
+    // Check if LEDs should be turned on immedeatly
+    if (activate)
+    {
+        FastLED.show();
+        delay(SHORT_DELAY);
+        FastLED.clear();
+    }
+}
+
+// Calculate Coordinates sourrounding any given position of the board
+void animateStart(int row, int col)
+{
+    // Set LEDs at all four positions
+    LEDProcessing(row - 1, col, false); // Up
+    LEDProcessing(row + 1, col, false); // Down
+    LEDProcessing(row, col - 1, false); // Left
+    LEDProcessing(row, col + 1, false); // Right
+
+    // Update all LEDs at once
     FastLED.show();
-    delay(10);
-    FastLED.clear();
+    delay(LONG_DELAY);
+
+    // Clear all LEDs and update
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    FastLED.show();
 }
 
 void loop()
@@ -116,23 +143,40 @@ void loop()
     {
         String data = Serial.readStringUntil('\n');
         int r1, c1, r2, c2;
-        // Check if the input contains both sets of coordinates
-        if (sscanf(data.c_str(), "%d,%d,%d,%d", &r1, &c1, &r2, &c2) == 4)
+
+        // Try to parse two pairs of coordinates
+        int coords = sscanf(data.c_str(), "%d,%d,%d,%d", &r1, &c1, &r2, &c2);
+
+        // Check if the input contains two sets of coordinates
+        if (coords == 4)
         {
-            if (debug)
+            if (DEBUG)
             {
                 std::cout << "First Coordinate: " << r1 << "," << c1 << std::endl;
                 std::cout << "Second Coordinate: " << r2 << "," << c2 << std::endl;
             }
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < REPETITIONS; i++)
             {
                 animateTrail(r1, c1, r2, c2);
+                delay(50);
+            }
+            // Check if the input contains one set of coordinates
+        }
+        else if (coords == 2)
+        {
+            if (DEBUG)
+            {
+                std::cout << "Single Coordinate: " << r1 << "," << c1 << std::endl;
+            }
+            for (int i = 0; i < REPETITIONS; i++)
+            {
+                animateStart(r1, c1);
                 delay(50);
             }
         }
         else
         {
-            if (debug)
+            if (DEBUG)
             {
                 Serial.println("Invalid input. Please provide both sets of coordinates.");
             }
