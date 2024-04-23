@@ -1,3 +1,5 @@
+# !OLD SCRIPT! OUTDATED!
+
 import time
 
 import smbus

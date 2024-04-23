@@ -1,3 +1,5 @@
+# Prints out the raw voltage Values receive from the I2C device
+
 import time
 
 import smbus

@@ -25,6 +25,7 @@ def read_sensor_data():
     return tileInt, rowInt, colInt
 
 
+# Calculates the actual Voltage level from the raw value
 def calculateVoltage(rawValue, type):
     adc = (rawValue / 4095.0) * 3.3
     if type == "tile":
@@ -33,29 +34,55 @@ def calculateVoltage(rawValue, type):
         return adc * 1.51
 
 
-tileList = [
+# Stores adjustments for each tile in the format (row, column)
+adjustmentTable = [
     # Row 1
-    (5.0, 1),
-    (4.4, 2),
-    (4.0, 3),
-    (3.64, 4),
+    (0, 0),  # Tile 1
+    (4, 0),  # Tile 2
+    (8, 0),  # Tile 3
+    (12, 0),  # Tile 4
     # Row 2
-    (3.3, 8),
-    (3.0, 7),
-    (2.68, 6),
-    (2.36, 5),
+    (0, 4),  # Tile 5
+    (4, 4),  # Tile 6
+    (8, 4),  # Tile 7
+    (12, 4),  # Tile 8
     # Row 3
-    (2.0, 9),
-    (1.8, 10),
-    (1.5, 11),
-    (1.22, 12),
+    (0, 8),  # Tile 9
+    (4, 8),  # Tile 10
+    (8, 8),  # Tile 11
+    (12, 8),  # Tile 12
     # Row 4
-    (0.94, 16),
-    (0.66, 15),
-    (0.38, 14),
-    (0.1, 13),
+    (0, 12),  # Tile 13
+    (4, 12),  # Tile 14
+    (8, 12),  # Tile 15
+    (12, 12),  # Tile 16
 ]
 
+# Stores the voltage values for each tile
+tileList = [
+    # Row 1
+    (5.0, 4),
+    (4.4, 3),
+    (4.0, 2),
+    (3.64, 1),
+    # Row 2
+    (3.3, 5),
+    (3.0, 6),
+    (2.68, 7),
+    (2.36, 8),
+    # Row 3
+    (2.0, 12),
+    (1.8, 11),
+    (1.5, 10),
+    (1.22, 9),
+    # Row 4
+    (0.94, 13),
+    (0.66, 14),
+    (0.38, 15),
+    (0.1, 16),
+]
+
+# Stores the voltage values for each row
 rowList = [
     (4.9, 1),
     (3.0, 2),
@@ -63,6 +90,7 @@ rowList = [
     (0.4, 4),
 ]
 
+# Stores the voltage values for each column
 colList = [
     (4.8, 1),
     (4.0, 2),
@@ -71,6 +99,7 @@ colList = [
 ]
 
 
+# Converts the raw value to a number based on the voltage list
 def convertValue(rawValue, dataList, threshold):
     for voltage, number in dataList:
         if voltage - threshold <= rawValue <= voltage + threshold:
@@ -85,26 +114,24 @@ colThreshold = 0.4
 while True:
     try:
         tileValue, rowValue, colValue = read_sensor_data()
-        print(
-            "Tile: "
-            + str(
-                convertValue(
-                    calculateVoltage(tileValue, "tile"), tileList, tileThreshold
-                )
-            )
+
+        tile = convertValue(
+            calculateVoltage(tileValue, "tile"), tileList, tileThreshold
         )
-        print(
-            "Row: "
-            + str(
-                convertValue(calculateVoltage(rowValue, "row"), rowList, rowThreshold)
-            )
-        )
-        print(
-            "Column: "
-            + str(
-                convertValue(calculateVoltage(colValue, "col"), colList, colThreshold)
-            )
-        )
+        row = convertValue(calculateVoltage(rowValue, "row"), rowList, rowThreshold)
+        col = convertValue(calculateVoltage(colValue, "col"), colList, colThreshold)
+
+        print(str(row) + "," + str(col) + "," + str(tile))
+
+        # Retrieve row and col adjustments based on the tile number
+        row_adjustment, col_adjustment = adjustmentTable[tile - 1]
+
+        # Apply adjustments
+        row += row_adjustment
+        col += col_adjustment
+
+        # print("(" + str(row) + "," + str(col) + ")")
+
         time.sleep(1)  # Delay for 1 second before reading again
     except Exception as e:
         print(f"Read Error: {e}")
