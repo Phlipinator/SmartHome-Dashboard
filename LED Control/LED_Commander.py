@@ -6,23 +6,22 @@ import serial
 ser = serial.Serial("/dev/ttyUSB1", 9600, timeout=1)
 
 
-def send_led_position():
+def send_message():
+    print("Enter your message. Press 'enter' to send.")
+    print("Enter 'exit' to quit.")
+
     while True:
-        coordinates = input(
-            "Enter the coordinates of the LED (in the format x,y), or 'exit' to quit: "
-        )
-        if coordinates.lower() == "exit":
+        message = input("Message: ")
+
+        if message.lower() == "exit":
             break
-        x, y = coordinates.split(",")
-        if x.isdigit() and y.isdigit():
-            position = f"{x},{y}\n"
-            ser.write(position.encode())
-            time.sleep(0.1)  # Give some time for the ESP32 to process the command
-        else:
-            print("Please enter valid coordinates (in the format x,y) or 'exit'.")
+
+        # Send message
+        ser.write(f"{message}\n".encode())
+        time.sleep(0.1)
 
 
-send_led_position()
+send_message()
 
 # Clean up
 ser.close()
