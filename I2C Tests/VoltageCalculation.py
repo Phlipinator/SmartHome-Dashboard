@@ -93,9 +93,9 @@ rowList = [
 # Stores the voltage values for each column
 colList = [
     (4.8, 1),
-    (4.0, 2),
-    (3.5, 3),
-    (3.0, 4),
+    (4.3, 2),
+    (3.7, 3),
+    (3.2, 4),
 ]
 
 
@@ -121,7 +121,8 @@ while True:
         row = convertValue(calculateVoltage(rowValue, "row"), rowList, rowThreshold)
         col = convertValue(calculateVoltage(colValue, "col"), colList, colThreshold)
 
-        print(str(row) + "," + str(col) + "," + str(tile))
+        # For Debugging
+        # print(str(row) + "," + str(col) + "," + str(tile))
 
         # Retrieve row and col adjustments based on the tile number
         row_adjustment, col_adjustment = adjustmentTable[tile - 1]
@@ -130,7 +131,7 @@ while True:
         row += row_adjustment
         col += col_adjustment
 
-        # print("(" + str(row) + "," + str(col) + ")")
+        print("(" + str(row) + "," + str(col) + ")")
 
         time.sleep(1)  # Delay for 1 second before reading again
     except Exception as e:
