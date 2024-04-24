@@ -42,25 +42,26 @@ def calculateVoltage(rawValue, type):
 adjustmentTable = [
     # Row 1
     (0, 0),  # Tile 1
-    (4, 0),  # Tile 2
-    (8, 0),  # Tile 3
-    (12, 0),  # Tile 4
+    (0, 4),  # Tile 2
+    (0, 8),  # Tile 3
+    (0, 12),  # Tile 4
     # Row 2
-    (0, 4),  # Tile 5
+    (4, 0),  # Tile 5
     (4, 4),  # Tile 6
-    (8, 4),  # Tile 7
-    (12, 4),  # Tile 8
+    (4, 8),  # Tile 7
+    (4, 12),  # Tile 8
     # Row 3
-    (0, 8),  # Tile 9
-    (4, 8),  # Tile 10
+    (8, 0),  # Tile 9
+    (8, 4),  # Tile 10
     (8, 8),  # Tile 11
-    (12, 8),  # Tile 12
+    (8, 12),  # Tile 12
     # Row 4
-    (0, 12),  # Tile 13
-    (4, 12),  # Tile 14
-    (8, 12),  # Tile 15
+    (12, 0),  # Tile 13
+    (12, 4),  # Tile 14
+    (12, 8),  # Tile 15
     (12, 12),  # Tile 16
 ]
+
 
 # Stores the voltage values for each tile
 tileList = [
