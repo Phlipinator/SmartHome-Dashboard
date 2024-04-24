@@ -14,6 +14,8 @@ const bool DEBUG = true;
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
 
+const int relayPin = 13; // GPIO pin connected to the relay
+
 // Unique Positions of the LEDs in the 16 x 16 martix are stored here
 int matrix[MATRIX_SIZE][MATRIX_SIZE][2] = {
     {{61, 62}, {58}, {55, 54}, {51}, {47}, {43, 44}, {40}, {36, 37}, {33}, {29}, {25, 26}, {22}, {18}, {15, 14}, {11}, {7, 8}},
@@ -38,6 +40,9 @@ void setup()
     Serial.begin(9600);
     FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(50);
+
+    pinMode(relayPin, OUTPUT);   // Initialize the relay pin as an output
+    digitalWrite(relayPin, LOW); // Start with the relay off
 }
 
 // Calculates a route between two sets of coordinates
@@ -157,8 +162,10 @@ void loop()
             }
             for (int i = 0; i < REPETITIONS; i++)
             {
+                digitalWrite(relayPin, HIGH);
                 animateTrail(r1, c1, r2, c2);
                 delay(50);
+                digitalWrite(relayPin, LOW);
             }
             // Check if the input contains one set of coordinates
         }
@@ -170,8 +177,11 @@ void loop()
             }
             for (int i = 0; i < REPETITIONS; i++)
             {
+                digitalWrite(relayPin, HIGH);
+                delay(10);
                 animateStart(r1, c1);
                 delay(50);
+                digitalWrite(relayPin, LOW);
             }
         }
         else
