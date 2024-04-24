@@ -104,29 +104,37 @@ void animateTrail(int r1, int c1, int r2, int c2)
 // Turn LED(s) for any given position on
 void LEDProcessing(int row, int col, bool activate)
 {
-    // Check if there's a LED at the current position
-    if (matrix[row][col][0] != 0)
+    // Ensure row and column are within valid range
+    if (row >= 0 && row < MATRIX_SIZE && col >= 0 && col < MATRIX_SIZE)
     {
-        leds[matrix[row][col][0]] = CRGB::Red;
-    }
-    // Check if there's a second LED at the current position
-    if (matrix[row][col][1] != 0)
-    {
-        leds[matrix[row][col][1]] = CRGB::Red;
-    }
+        // Check if there's a LED at the current position
+        if (matrix[row][col][0] != 0)
+        {
+            leds[matrix[row][col][0]] = CRGB::Red;
+        }
+        // Check if there's a second LED at the current position
+        if (matrix[row][col][1] != 0)
+        {
+            leds[matrix[row][col][1]] = CRGB::Red;
+        }
 
-    // Check if LEDs should be turned on immedeatly
-    if (activate)
-    {
-        FastLED.show();
-        delay(SHORT_DELAY);
-        FastLED.clear();
+        // Check if LEDs should be turned on immedeatly
+        if (activate)
+        {
+            FastLED.show();
+            delay(SHORT_DELAY);
+            FastLED.clear();
+        }
     }
 }
 
 // Calculate Coordinates sourrounding any given position of the board
 void animateStart(int row, int col)
 {
+    // Adjust to zero based indexing
+    row--;
+    col--;
+
     // Set LEDs at all four positions
     LEDProcessing(row - 1, col, false); // Up
     LEDProcessing(row + 1, col, false); // Down

@@ -1,6 +1,10 @@
 import time
 
+import serial
 import smbus
+
+# Setup the serial connection
+ser = serial.Serial("/dev/ttyUSB0", 9600, timeout=1)
 
 # Create an instance of the smbus library
 bus = smbus.SMBus(1)  # 1 indicates /dev/i2c-1
@@ -149,7 +153,10 @@ while True:
         # and it's different from the last printed one
         if count == 3 and last_printed != current_coordinate:
             print(current_coordinate)
-            last_printed = current_coordinate
+            # Extract row and col from current_coordinate for sending
+            row, col = current_coordinate  # unpacking the tuple
+            # Send coordinates in "row,col" format
+            ser.write(f"{row},{col}\n".encode())
 
         time.sleep(1)  # Delay for 1 second before reading again
     except Exception as e:
