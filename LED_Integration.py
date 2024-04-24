@@ -114,7 +114,7 @@ def convertValue(rawValue, dataList, threshold):
 
 tileThreshold = 0.15
 rowThreshold = 0.5
-colThreshold = 0.4
+colThreshold = 0.3
 
 previous_coordinate = None
 count = 0
