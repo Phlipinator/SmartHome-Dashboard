@@ -17,13 +17,11 @@ class Proxy:
         attempts = 3
         for _ in range(attempts):
             try:
-                # Try to write a quick command to see if device responds
-                self.bus.write_quick(self.address)
+                self.bus.read_byte_data(self.address, 0x00)
                 self.is_plugged_in = True
-
                 return  # Exit if successful
             except IOError:
-                time.sleep(1)
+                time.sleep(1)  # Wait a second and try again
         self.is_plugged_in = False  # Set to false if all attempts fail
 
     def read_proxy_data(self):
