@@ -63,7 +63,15 @@ class Proxy:
         return 0  # If no range matches
 
     def get_position(self):
-        tile_value, row_value, col_value = self.read_proxy_data()
+        # First check connection to the device
+        self.check_connection()
+        data = self.read_proxy_data()
+
+        if data is None:
+            print("No data received from the device or device not connected.")
+            return None  # Exit the function if no data is received
+
+        tile_value, row_value, col_value = data  # Now it's safe to unpack
 
         tile = self.convert_value(tile_value, "tile")
         row = self.convert_value(row_value, "row")
