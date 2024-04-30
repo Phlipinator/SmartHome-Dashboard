@@ -17,7 +17,7 @@ class Proxy:
         attempts = 3
         for _ in range(attempts):
             try:
-                self.bus.read_byte_data(self.address, 0x00)
+                self.bus.read_i2c_block_data(self.address, 0x00, 8)
                 self.is_plugged_in = True
                 return  # Exit if successful
             except IOError:
