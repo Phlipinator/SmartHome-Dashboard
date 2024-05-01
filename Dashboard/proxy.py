@@ -19,6 +19,7 @@ class Proxy:
             try:
                 self.bus.read_i2c_block_data(self.address, 0x00, 8)
                 self.is_plugged_in = True
+                print("Proxy is connected.")
                 return  # Exit if successful
             except IOError:
                 time.sleep(1)  # Wait a second and try again
