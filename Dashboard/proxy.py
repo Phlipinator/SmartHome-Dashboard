@@ -5,6 +5,13 @@ from config import Config
 
 class Proxy:
     def __init__(self, bus, address):
+        """
+        Initialize the Proxy object.
+
+        Args:
+            bus: The bus object used for I2C communication.
+            address: The address of the proxy device.
+        """
         self.bus = bus
         self.address = address
         self.is_plugged_in = False
@@ -12,8 +19,10 @@ class Proxy:
         self.state = None
         self.config = Config()
 
-    # Check if the proxy is connected to the dashboard
     def check_connection(self):
+        """
+        Check if the proxy is connected to the dashboard.
+        """
         attempts = 3
         for _ in range(attempts):
             try:
@@ -25,8 +34,14 @@ class Proxy:
                 time.sleep(1)  # Wait a second and try again
         self.is_plugged_in = False  # Set to false if all attempts fail
 
-    # Read data from the proxy at the specified device address
     def read_proxy_data(self):
+        """
+        Read data from the proxy at the specified device address.
+
+        Returns:
+            The data read from the proxy as a triple of tile, row, and column values.
+            Returns None if the proxy is not plugged in.
+        """
         if not self.is_plugged_in:
             return None
         try:
@@ -40,10 +55,17 @@ class Proxy:
             print(f"Read Error: {e}")
             return None
 
-    # Calculate the voltage based the type of voltage divider
     def calculate_voltage(self, raw_value, type):
-        # 4095 is the resolution of the ADC
-        # 3.3 is the reference voltage
+        """
+        Calculate the voltage based on the type of voltage divider.
+
+        Args:
+            raw_value: The raw value read from the ADC.
+            type: The type of voltage divider ("tile", "row", or "col").
+
+        Returns:
+            The calculated voltage.
+        """
         adc = (raw_value / 4095.0) * 3.3
         if type == "tile":
             return adc * 1.68
@@ -53,56 +75,79 @@ class Proxy:
             return adc * 1.51
         return adc
 
-    # Match the correct position based on th voltage
     def convert_value(self, raw_value, type):
+        """
+        Match the correct position based on the voltage.
+
+        Args:
+            raw_value: The raw value read from the ADC.
+            type: The type of voltage divider ("tile", "row", or "col").
+
+        Returns:
+            The matched position number.
+            Returns 0 if no range matches.
+        """
         voltage = self.calculate_voltage(raw_value, type)
-        # Get the list of data based on the type
         data_list = getattr(self.config, f"{type}List")
         threshold = self.config.thresholds[type]
 
         for voltage_level, number in data_list:
             if voltage_level - threshold <= voltage <= voltage_level + threshold:
                 return number
-        return 0  # If no range matches
+        return 0
 
     def apply_adjustments(self, tile, row, col):
-        if tile > 0:  # Assuming tile numbering starts at 1
+        """
+        Apply adjustments to the row and column values based on the tile number.
+        Converts the relative position on the board to the absolute position.
+
+        Args:
+            tile: The tile number.
+            row: The original row value.
+            col: The original column value.
+
+        Returns:
+            The adjusted row and column values as an absolute position of the dashboard
+        """
+        if tile > 0:
             row_adjustment, col_adjustment = self.config.adjustmentTable[tile - 1]
             adjusted_row = row + row_adjustment
             adjusted_col = col + col_adjustment
             return adjusted_row, adjusted_col
-        return row, col  # Return original values if no adjustment is necessary
+        return row, col
 
-    # Function to get the position of the proxy
     def get_position(self):
-        # First check connection to the device
+        """
+        Get the position of the proxy.
+
+        Returns:
+            The position of the proxy as a tuple of row and column values.
+            Returns None if the proxy is not connected or if there are too many read failures.
+        """
         self.check_connection()
 
         last_values = None
         consistent_count = 0
         failure_count = 0
 
-        # Read data until 3 consistent readings of the converted values are received
         while consistent_count < 3:
             if failure_count >= 5:
                 print("Exceeded maximum number of read failures.")
-                return None  # Exit function after too many failures
+                return None
 
             data = self.read_proxy_data()
             if data is None:
                 print("Failed to receive data, attempting again...")
                 failure_count += 1
                 time.sleep(1)
-                continue  # Skip this iteration and try again
+                continue
 
-            # Convert the raw values
             tile_value, row_value, col_value = data
             tile = self.convert_value(tile_value, "tile")
             row = self.convert_value(row_value, "row")
             col = self.convert_value(col_value, "col")
             values = (tile, row, col)
 
-            # Check for consistent converted values
             if last_values == values:
                 consistent_count += 1
             else:
@@ -111,7 +156,6 @@ class Proxy:
 
             time.sleep(1)
 
-        # Apply row and column adjustments based on the tile number
         if tile > 0:
             return self.apply_adjustments(tile, row, col)
 
