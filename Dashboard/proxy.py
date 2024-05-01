@@ -69,29 +69,32 @@ class Proxy:
         # First check connection to the device
         self.check_connection()
 
-        last_data = None
+        last_values = None
         consistent_count = 0
 
-        # Read data until 3 consistent readings are received
+        # Read data until 3 consistent readings of the converted values are received
         while consistent_count < 3:
             data = self.read_proxy_data()
             if data is None:
-                print("No data received.")
+                print("No data received from the device.")
                 return None  # Exit the function if no data is received
 
-            if last_data == data:
+            # Convert the raw values
+            tile_value, row_value, col_value = data
+            tile = self.convert_value(tile_value, "tile")
+            row = self.convert_value(row_value, "row")
+            col = self.convert_value(col_value, "col")
+            values = (tile, row, col)
+
+            # Check for consistent converted values
+            if last_values == values:
                 consistent_count += 1
             else:
-                last_data = data
+                last_values = values
                 consistent_count = 1
-            time.sleep(1)
 
-        # Now it's safe to unpack
-        tile_value, row_value, col_value = last_data
-
-        tile = self.convert_value(tile_value, "tile")
-        row = self.convert_value(row_value, "row")
-        col = self.convert_value(col_value, "col")
+            if consistent_count < 3:
+                time.sleep(1)
 
         # Retrieve and apply row and column adjustments based on the tile number
         if tile > 0:  # Assuming tile numbering starts at 1
