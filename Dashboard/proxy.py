@@ -1,6 +1,5 @@
 import time
 
-import smbus
 from config import Config
 
 
@@ -13,6 +12,7 @@ class Proxy:
         self.state = None
         self.config = Config()
 
+    # Check if the proxy is connected to the dashboard
     def check_connection(self):
         attempts = 3
         for _ in range(attempts):
@@ -24,11 +24,11 @@ class Proxy:
                 time.sleep(1)  # Wait a second and try again
         self.is_plugged_in = False  # Set to false if all attempts fail
 
+    # Read data from the proxy at the specified device address
     def read_proxy_data(self):
         if not self.is_plugged_in:
             return None
         try:
-            # Read data from the proxy at the specified device address
             data = self.bus.read_i2c_block_data(self.address, 0x00, 8)
             tileInt = (data[0] << 8) | data[1]
             rowInt = (data[2] << 8) | data[3]
@@ -39,6 +39,7 @@ class Proxy:
             print(f"Read Error: {e}")
             return None
 
+    # Calculate the voltage based the type of voltage divider
     def calculate_voltage(self, raw_value, type):
         adc = (raw_value / 4095.0) * 3.3
         if type == "tile":
@@ -46,12 +47,14 @@ class Proxy:
         elif type == "row":
             return adc * 1.51
         elif type == "col":
-            return adc * 1.51  # Example if same factor as row
+            return adc * 1.51
         return adc
 
+    # Match the correct position based on th voltage
     def convert_value(self, raw_value, type):
 
         voltage = self.calculate_voltage(raw_value, type)
+        # Get the list of data based on the type
         data_list = getattr(self.config, f"{type}List")
         threshold = self.config.thresholds[type]
 
@@ -60,16 +63,29 @@ class Proxy:
                 return number
         return 0  # If no range matches
 
+    # Function to get the position of the proxy
     def get_position(self):
         # First check connection to the device
         self.check_connection()
-        data = self.read_proxy_data()
 
-        if data is None:
-            print("No data received from the device or device not connected.")
-            return None  # Exit the function if no data is received
+        last_data = None
+        consistent_count = 0
 
-        tile_value, row_value, col_value = data  # Now it's safe to unpack
+        # Read data until 3 consistent readings are received
+        while consistent_count < 3:
+            data = self.read_proxy_data()
+            if data is None:
+                print("No data received.")
+                return None  # Exit the function if no data is received
+
+            if last_data == data:
+                consistent_count += 1
+            else:
+                last_data = data
+                consistent_count = 1
+
+        # Now it's safe to unpack
+        tile_value, row_value, col_value = last_data
 
         tile = self.convert_value(tile_value, "tile")
         row = self.convert_value(row_value, "row")
@@ -81,4 +97,5 @@ class Proxy:
             adjusted_row = row + row_adjustment
             adjusted_col = col + col_adjustment
             return adjusted_row, adjusted_col
+
         return None
