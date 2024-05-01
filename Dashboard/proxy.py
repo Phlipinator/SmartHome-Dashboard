@@ -68,25 +68,13 @@ class Proxy:
     def get_position(self):
         # First check connection to the device
         self.check_connection()
+        data = self.read_proxy_data()
 
-        last_data = None
-        consistent_count = 0
+        if data is None:
+            print("No data received from the device or device not connected.")
+            return None  # Exit the function if no data is received
 
-        # Read data until 3 consistent readings are received
-        while consistent_count < 3:
-            data = self.read_proxy_data()
-            if data is None:
-                print("No data received.")
-                return None  # Exit the function if no data is received
-
-            if last_data == data:
-                consistent_count += 1
-            else:
-                last_data = data
-                consistent_count = 1
-
-        # Now it's safe to unpack
-        tile_value, row_value, col_value = last_data
+        tile_value, row_value, col_value = data  # Now it's safe to unpack
 
         tile = self.convert_value(tile_value, "tile")
         row = self.convert_value(row_value, "row")
@@ -98,5 +86,4 @@ class Proxy:
             adjusted_row = row + row_adjustment
             adjusted_col = col + col_adjustment
             return adjusted_row, adjusted_col
-
         return None
