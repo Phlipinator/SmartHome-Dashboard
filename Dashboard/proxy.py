@@ -42,6 +42,8 @@ class Proxy:
 
     # Calculate the voltage based the type of voltage divider
     def calculate_voltage(self, raw_value, type):
+        # 4095 is the resolution of the ADC
+        # 3.3 is the reference voltage
         adc = (raw_value / 4095.0) * 3.3
         if type == "tile":
             return adc * 1.68
@@ -53,7 +55,6 @@ class Proxy:
 
     # Match the correct position based on th voltage
     def convert_value(self, raw_value, type):
-
         voltage = self.calculate_voltage(raw_value, type)
         # Get the list of data based on the type
         data_list = getattr(self.config, f"{type}List")
@@ -63,6 +64,14 @@ class Proxy:
             if voltage_level - threshold <= voltage <= voltage_level + threshold:
                 return number
         return 0  # If no range matches
+
+    def apply_adjustments(self, tile, row, col):
+        if tile > 0:  # Assuming tile numbering starts at 1
+            row_adjustment, col_adjustment = self.config.adjustmentTable[tile - 1]
+            adjusted_row = row + row_adjustment
+            adjusted_col = col + col_adjustment
+            return adjusted_row, adjusted_col
+        return row, col  # Return original values if no adjustment is necessary
 
     # Function to get the position of the proxy
     def get_position(self):
@@ -102,11 +111,8 @@ class Proxy:
 
             time.sleep(1)
 
-        # Retrieve and apply row and column adjustments based on the tile number
-        if tile > 0:  # Assuming tile numbering starts at 1
-            row_adjustment, col_adjustment = self.config.adjustmentTable[tile - 1]
-            adjusted_row = row + row_adjustment
-            adjusted_col = col + col_adjustment
-            return adjusted_row, adjusted_col
+        # Apply row and column adjustments based on the tile number
+        if tile > 0:
+            return self.apply_adjustments(tile, row, col)
 
         return None
