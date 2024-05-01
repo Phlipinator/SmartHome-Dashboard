@@ -13,6 +13,17 @@ class Proxy:
         self.state = None
         self.config = Config()
 
+    def check_connection(self):
+        attempts = 3
+        for _ in range(attempts):
+            try:
+                self.bus.read_i2c_block_data(self.address, 0x00, 8)
+                self.is_plugged_in = True
+                return  # Exit if successful
+            except IOError:
+                time.sleep(1)  # Wait a second and try again
+        self.is_plugged_in = False  # Set to false if all attempts fail
+
     def read_proxy_data(self):
         if not self.is_plugged_in:
             return None
