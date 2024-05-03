@@ -2,10 +2,15 @@
 #include <TFT_eSPI.h>
 #include <ui.h>
 #include <Wire.h>
+#include <esp_task_wdt.h>
 
-// Debugging
+
+const int I2C_ADDRESS = 54;
+
+// DEBUGGING
+// While position debugging is active, the encoder will not work properly, due to the delay
 bool encoderDebug = false;
-bool positionDebugging = true;
+bool positionDebugging = false;
 
 // Initialize Position Pins
 const byte TILE_PIN = 25;
@@ -13,10 +18,10 @@ const byte ROW_PIN = 32;
 const byte COL_PIN = 33;
 
 // Initialize Text Object
-extern lv_obj_t *ui_Text;
+extern lv_obj_t * ui_Text;
 
 // Initialize Encoder Pins
-const int pinA = 12; // Encoder pin A
+const int pinA = 27; // Encoder pin A
 const int pinB = 14; // Encoder pin B
 
 volatile int encoderPos = 0;
@@ -25,8 +30,6 @@ int lastEncoded = 0;
 const int32_t angles[] = {0, 1190, -1280}; // Predefined angles
 int modeIndex = 0;                         // Index of the current mode
 
-const int I2C_ADDRESS = 54;
-
 // Screen resolution
 static const uint16_t screenWidth = 240;
 static const uint16_t screenHeight = 240;
@@ -34,16 +37,7 @@ static const uint16_t screenHeight = 240;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[screenWidth * screenHeight / 10];
 
-TFT_eSPI tft = TFT_eSPI(screenWidth, screenHeight); /* TFT instance */
-
-#if LV_USE_LOG != 0
-/* Serial debugging */
-void my_print(const char *buf)
-{
-    Serial.printf(buf);
-    Serial.flush();
-}
-#endif
+TFT_eSPI tft = TFT_eSPI(screenWidth, screenHeight); // TFT instance
 
 /* Display flushing */
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
@@ -75,9 +69,9 @@ void incrementalEncoder()
         {
             // Determine direction and increment or decrement encoderPos accordingly
             if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011)
-                encoderPos++;
-            else if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000)
                 encoderPos--;
+            else if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000)
+                encoderPos++;
 
             // Only process this input, next one will be skipped
             processInput = false;
@@ -136,27 +130,36 @@ void readProxyData()
     data[5] = (byte)(colInt & 0xFF);  // Low byte of colInt
 
     Wire.write(data, len); // Send the data
+    delay(1000);
+}
+
+void positionDebug()
+{
+    Serial.print("Tile Voltage: ");
+    Serial.println(analogRead(TILE_PIN));
+    Serial.print("Row Voltage: ");
+    Serial.println(analogRead(ROW_PIN));
+    Serial.print("Column Voltage: ");
+    Serial.println(analogRead(COL_PIN));
+    Serial.println(" ");
+
+    delay(1000);
 }
 
 void setup()
 {
-    Serial.begin(9600); /* prepare for possible serial debug */
+    Serial.begin(9600);
 
     lv_init();
 
-#if LV_USE_LOG != 0
-    lv_log_register_print_cb(my_print); /* register print function for debugging */
-#endif
-
-    tft.begin();        /* TFT init */
-    tft.setRotation(3); /* Landscape orientation, flipped */
+    tft.begin();        // TFT init
+    tft.setRotation(3); // Landscape orientation, flipped
 
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * screenHeight / 10);
 
-    /*Initialize the display*/
+    // Initialize the display
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
-    /*Change the following line to your display resolution*/
     disp_drv.hor_res = screenWidth;
     disp_drv.ver_res = screenHeight;
     disp_drv.flush_cb = my_disp_flush;
@@ -176,29 +179,26 @@ void setup()
 
     // I2C Init
     Wire.begin(I2C_ADDRESS); // Initialize the Arduino as an I2C slave
-    Wire.setClock(800000);
+    Wire.setClock(100000);
     Wire.onRequest(readProxyData);
+
+    // Initialize and enable the watchdog timer for 5 seconds
+    esp_task_wdt_init(5, true); // Timeout period and whether to panic (reset) when the timeout is reached
+    esp_task_wdt_add(NULL); // Add the current task to the watchdog timer
 }
 
 void loop()
 {
-    lv_timer_handler(); // let the LVGL do its work
+    lv_timer_handler(); // let LVGL do its work
 
     incrementalEncoder(); // Encoder Interpretation
 
     if (positionDebugging)
-    {
-        Serial.print("Tile Voltage: ");
-        Serial.println(analogRead(TILE_PIN));
-        Serial.print("Row Voltage: ");
-        Serial.println(analogRead(ROW_PIN));
-        Serial.print("Column Voltage: ");
-        Serial.println(analogRead(COL_PIN));
-        Serial.println(" ");
+        positionDebug();
 
-        delay(1000);
-    }
+    // Reset the watchdog timer to prevent a timeout reset
+    esp_task_wdt_reset();
 
-    // Small delay to limit the update rate (adjust as necessary for your application).
+    // Small delay to limit the update rate
     delay(5);
 }
