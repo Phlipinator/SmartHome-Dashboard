@@ -138,24 +138,28 @@ void callback(char* topic, byte* message, unsigned int length) {
 }
 
 void reconnect() {
-  // Loop until we're reconnected
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
+    // Create a unique client ID
+    String clientId = "ESP32Client-" + String((uint32_t)ESP.getEfuseMac(), HEX);
     // Attempt to connect
-    if (client.connect("ESP32Client", mqtt_user, mqtt_password)) {
+    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
       Serial.println("connected");
       // Once connected, publish an announcement...
       String payload = String(ID);
       client.publish("outTopic", payload.c_str());
+      // Subscribe to your topics here
+      client.subscribe("yourSubscriptionTopic");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
+      // Wait 5 seconds before retrying, non-blocking wait could be implemented here
       delay(5000);
     }
   }
 }
+
 
 void setup() {
   Serial.begin(9600);
