@@ -40,10 +40,7 @@ int lastEncoded = 0;
 
 const int32_t angles[] = { 0, 1190, -1280 };  // Predefined angles
 int modeIndex = 0;                            // Index of the current mode
-// Initialize to -1 to ensure it triggers the first time
-static int lastModeIndex = -1;
-// Flag to decide whether to process encoder input or not
-static bool processInput = true;
+static int lastModeIndex = -1;  // Initialize to -1 to ensure it triggers the first time
 
 // Screen resolution
 static const uint16_t screenWidth = 240;
@@ -69,6 +66,7 @@ void my_disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color
 
 void incrementalEncoder() {
   static int lastEncoderPos = encoderPos;  // Keep track of the last encoder position to detect changes
+  static bool processInput = true;         // Flag to decide whether to process this input or not
 
   int MSB = digitalRead(pinA);             // Most significant bit
   int LSB = digitalRead(pinB);             // Least significant bit
@@ -111,6 +109,7 @@ void incrementalEncoder() {
 
 void setup_wifi() {
   delay(10);
+  // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -145,7 +144,7 @@ void reconnect() {
     // Attempt to connect
     if (client.connect("ESP32Client", mqtt_user, mqtt_password)) {
       Serial.println("connected");
-      // Once connected, publish the device ID
+      // Once connected, publish an announcement...
       String payload = String(ID);
       client.publish("outTopic", payload.c_str());
     } else {
@@ -211,9 +210,11 @@ void loop() {
   }
   client.loop();
 
+  static int lastModeIndex = -1;  // Initialize to -1 to ensure it triggers the first time
+
   int currentModeIndex = modeIndex;
 
-  // Publish if there's a change in the mode index
+  // Publish if there's a significant change
   if (currentModeIndex != lastModeIndex) {
     String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(currentModeIndex);
     client.publish("outTopic", payload.c_str());
