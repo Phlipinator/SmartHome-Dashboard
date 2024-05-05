@@ -4,7 +4,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// Update these with your details
+// WIFI Credentials
 const char* ssid = "SSID";
 const char* password = "PW";
 
@@ -29,7 +29,7 @@ int rowVoltage = 0;
 int colVoltage = 0;
 
 // Initialize Text Object
-extern lv_obj_t* ui_Text;
+extern lv_obj_t * ui_Text;
 
 // Initialize Encoder Pins
 const int pinA = 27;  // Encoder pin A
@@ -37,10 +37,13 @@ const int pinB = 14;  // Encoder pin B
 
 volatile int encoderPos = 0;
 int lastEncoded = 0;
-static int lastModeIndex = -1;  // Initialize to -1 to ensure it triggers the first time
 
 const int32_t angles[] = { 0, 1190, -1280 };  // Predefined angles
 int modeIndex = 0;                            // Index of the current mode
+// Initialize to -1 to ensure it triggers the first time
+static int lastModeIndex = -1;
+// Flag to decide whether to process encoder input or not
+static bool processInput = true;
 
 // Screen resolution
 static const uint16_t screenWidth = 240;
@@ -66,7 +69,6 @@ void my_disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color
 
 void incrementalEncoder() {
   static int lastEncoderPos = encoderPos;  // Keep track of the last encoder position to detect changes
-  static bool processInput = true;         // Flag to decide whether to process this input or not
 
   int MSB = digitalRead(pinA);             // Most significant bit
   int LSB = digitalRead(pinB);             // Least significant bit
@@ -109,7 +111,6 @@ void incrementalEncoder() {
 
 void setup_wifi() {
   delay(10);
-  // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -144,7 +145,7 @@ void reconnect() {
     // Attempt to connect
     if (client.connect("ESP32Client", mqtt_user, mqtt_password)) {
       Serial.println("connected");
-      // Once connected, publish an announcement...
+      // Once connected, publish the device ID
       String payload = String(ID);
       client.publish("outTopic", payload.c_str());
     } else {
@@ -210,11 +211,9 @@ void loop() {
   }
   client.loop();
 
-  static int lastModeIndex = -1;  // Initialize to -1 to ensure it triggers the first time
-
   int currentModeIndex = modeIndex;
 
-  // Publish if there's a significant change
+  // Publish if there's a change in the mode index
   if (currentModeIndex != lastModeIndex) {
     String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(currentModeIndex);
     client.publish("outTopic", payload.c_str());
