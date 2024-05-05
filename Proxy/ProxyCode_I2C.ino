@@ -130,6 +130,7 @@ void readProxyData()
     data[5] = (byte)(colInt & 0xFF);  // Low byte of colInt
 
     Wire.write(data, len); // Send the data
+    // This delay is necessary to prevent the I2C bus from being overwhelmed
     delay(1000);
 }
 
