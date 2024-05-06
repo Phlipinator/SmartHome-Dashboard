@@ -18,6 +18,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 const int ID = 1;
+const String topic = "Proxy" + String(ID);
 
 // Initialize Position Pins
 const byte TILE_PIN = 25;
@@ -38,9 +39,9 @@ const int pinB = 14;  // Encoder pin B
 volatile int encoderPos = 0;
 int lastEncoded = 0;
 
-const int32_t angles[] = { 0, 1190, -1280 };  // Predefined angles
-int modeIndex = 0;                            // Index of the current mode
-static int lastModeIndex = -1;  // Initialize to -1 to ensure it triggers the first time
+// Predefined angles that represent the different modes
+const int32_t angles[] = { 0, 1190, -1280 };  
+int modeIndex = 0;
 
 // Screen resolution
 static const uint16_t screenWidth = 240;
@@ -147,9 +148,9 @@ void reconnect() {
       Serial.println("connected");
       // Once connected, publish an announcement...
       String payload = String(ID);
-      client.publish("outTopic", payload.c_str());
+      client.publish(topic.c_str(), payload.c_str());
       // Subscribe to your topics here
-      client.subscribe("yourSubscriptionTopic");
+      // client.subscribe("yourSubscriptionTopic");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -160,21 +161,13 @@ void reconnect() {
   }
 }
 
-
 void setup() {
   Serial.begin(9600);
-
-  // The position information is read once in the beginning of the script, because the ADC pins cannot be used when WiFi is enabled
-  delay(1000);
-  tileVoltage = analogRead(TILE_PIN);
-  rowVoltage = analogRead(ROW_PIN);
-  colVoltage = analogRead(COL_PIN);
-  delay(1000);
 
   lv_init();
 
   tft.begin();         // TFT init
-  tft.setRotation(3);  // Landscape orientation, flipped
+  tft.setRotation(2);  // Set right Orientation
 
   lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * screenHeight / 10);
 
@@ -198,6 +191,13 @@ void setup() {
   // Read the initial state
   lastEncoded = (digitalRead(pinA) << 1) | digitalRead(pinB);
 
+  // The position information is read once in the beginning of the script, because the ADC pins cannot be used when WiFi is enabled
+  delay(1000);
+  tileVoltage = analogRead(TILE_PIN);
+  rowVoltage = analogRead(ROW_PIN);
+  colVoltage = analogRead(COL_PIN);
+  delay(1000);
+
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
@@ -214,14 +214,15 @@ void loop() {
   }
   client.loop();
 
-  static int lastModeIndex = -1;  // Initialize to -1 to ensure it triggers the first time
+  // Initialize to -1 to ensure it triggers the first time
+  static int lastModeIndex = -1;  
 
   int currentModeIndex = modeIndex;
 
   // Publish if there's a significant change
   if (currentModeIndex != lastModeIndex) {
     String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(currentModeIndex);
-    client.publish("outTopic", payload.c_str());
+    client.publish(topic.c_str(), payload.c_str());
 
     lastModeIndex = currentModeIndex;
   }
