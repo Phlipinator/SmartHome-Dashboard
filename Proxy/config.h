@@ -11,9 +11,6 @@ const int mqtt_port = 1883;
 const char* mqtt_user = "USER";
 const char* mqtt_password = "PW";
 
-const int ID = 1;
-const String topic = "Proxy" + String(ID);
-
 // Initialize Position Pins
 const byte TILE_PIN = 25;
 const byte ROW_PIN = 32;

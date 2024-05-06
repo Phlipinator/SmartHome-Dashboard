@@ -5,6 +5,10 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
+// CHANGE PROXY ID HERE
+const int ID = 1;
+const String topic = "Proxy" + String(ID);
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -116,33 +120,26 @@ void callback(char* topic, byte* message, unsigned int length) {
 }
 
 void reconnect() {
-    static unsigned long lastAttemptTime = 0;
-    const unsigned long retryInterval = 5000;  // retry interval in milliseconds
-
-    if (!client.connected()) {
-        unsigned long currentTime = millis();
-        if (currentTime - lastAttemptTime >= retryInterval) {
-            Serial.print("Attempting MQTT connection...");
-
-            // Create a unique client ID
-            String clientId = "ESP32Client-" + String((uint32_t)ESP.getEfuseMac(), HEX);
-
-            // Attempt to connect
-            if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
-                Serial.println("connected");
-                // Once connected, publish the ID to signify the connection
-                String payload = String(ID);
-                client.publish(topic.c_str(), payload.c_str());
-                // Subscribe to topic here
-                // client.subscribe("yourSubscriptionTopic");
-            } else {
-                Serial.print("failed, rc=");
-                Serial.print(client.state());
-                Serial.println(" try again in 5 seconds");
-            }
-            lastAttemptTime = currentTime; // Update the last attempt time
-        }
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    // Create a unique client ID
+    String clientId = "ESP32Client-" + String((uint32_t)ESP.getEfuseMac(), HEX);
+    // Attempt to connect
+    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
+      Serial.println("connected");
+      // Once connected, publish an announcement...
+      String payload = String(ID);
+      client.publish(topic.c_str(), payload.c_str());
+      // Subscribe to your topics here
+      // client.subscribe("yourSubscriptionTopic");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying, non-blocking wait could be implemented here
+      delay(5000);
     }
+  }
 }
 
 void initDisplay() {
