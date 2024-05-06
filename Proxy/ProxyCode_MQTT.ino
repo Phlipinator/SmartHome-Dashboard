@@ -33,8 +33,8 @@ int colVoltage = 0;
 extern lv_obj_t * ui_Text;
 
 // Initialize Encoder Pins
-const int pinA = 27;  // Encoder pin A
-const int pinB = 14;  // Encoder pin B
+const int encoderPinA = 27;
+const int encoderPinB = 14;
 
 volatile int encoderPos = 0;
 int lastEncoded = 0;
@@ -69,8 +69,8 @@ void incrementalEncoder() {
   static int lastEncoderPos = encoderPos;  // Keep track of the last encoder position to detect changes
   static bool processInput = true;         // Flag to decide whether to process this input or not
 
-  int MSB = digitalRead(pinA);             // Most significant bit
-  int LSB = digitalRead(pinB);             // Least significant bit
+  int MSB = digitalRead(encoderPinA);             // Most significant bit
+  int LSB = digitalRead(encoderPinB);             // Least significant bit
   int encoded = (MSB << 1) | LSB;          // Combining the two bits
   int sum = (lastEncoded << 2) | encoded;  // Adding it to the previous encoded value
 
@@ -139,31 +139,36 @@ void callback(char* topic, byte* message, unsigned int length) {
 }
 
 void reconnect() {
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Create a unique client ID
-    String clientId = "ESP32Client-" + String((uint32_t)ESP.getEfuseMac(), HEX);
-    // Attempt to connect
-    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
-      Serial.println("connected");
-      // Once connected, publish an announcement...
-      String payload = String(ID);
-      client.publish(topic.c_str(), payload.c_str());
-      // Subscribe to your topics here
-      // client.subscribe("yourSubscriptionTopic");
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying, non-blocking wait could be implemented here
-      delay(5000);
+    static unsigned long lastAttemptTime = 0;
+    const unsigned long retryInterval = 5000;  // retry interval in milliseconds
+
+    if (!client.connected()) {
+        unsigned long currentTime = millis();
+        if (currentTime - lastAttemptTime >= retryInterval) {
+            Serial.print("Attempting MQTT connection...");
+
+            // Create a unique client ID
+            String clientId = "ESP32Client-" + String((uint32_t)ESP.getEfuseMac(), HEX);
+
+            // Attempt to connect
+            if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
+                Serial.println("connected");
+                // Once connected, publish an announcement...
+                String payload = String(ID);
+                client.publish(topic.c_str(), payload.c_str());
+                // Subscribe to your topics here
+                // client.subscribe("yourSubscriptionTopic");
+            } else {
+                Serial.print("failed, rc=");
+                Serial.print(client.state());
+                Serial.println(" try again in 5 seconds");
+            }
+            lastAttemptTime = currentTime; // Update the last attempt time
+        }
     }
-  }
 }
 
-void setup() {
-  Serial.begin(9600);
-
+void initDisplay() {
   lv_init();
 
   tft.begin();         // TFT init
@@ -183,19 +188,32 @@ void setup() {
   // Touch input driver initialization has been removed here
 
   ui_init();
+}
 
+void initEncoder() {
   // Encoder Init
-  pinMode(pinA, INPUT_PULLUP);
-  pinMode(pinB, INPUT_PULLUP);
+  pinMode(encoderPinA, INPUT_PULLUP);
+  pinMode(encoderPinB, INPUT_PULLUP);
 
   // Read the initial state
-  lastEncoded = (digitalRead(pinA) << 1) | digitalRead(pinB);
+  lastEncoded = (digitalRead(encoderPinA) << 1) | digitalRead(encoderPinB);
+}
 
-  // The position information is read once in the beginning of the script, because the ADC pins cannot be used when WiFi is enabled
-  delay(1000);
+void initVoltagePins() {
   tileVoltage = analogRead(TILE_PIN);
   rowVoltage = analogRead(ROW_PIN);
   colVoltage = analogRead(COL_PIN);
+}
+
+void setup() {
+  Serial.begin(9600);
+
+  initDisplay();
+  initEncoder();
+
+  // The position information is read once in the beginning of the script, because the ADC pins cannot be used when WiFi is enabled
+  delay(1000);
+  initVoltagePins();
   delay(1000);
 
   setup_wifi();
