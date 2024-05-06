@@ -1,29 +1,12 @@
+#include "config.h"
 #include <lvgl.h>
 #include <TFT_eSPI.h>
 #include <ui.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// WIFI Credentials
-const char* ssid = "SSID";
-const char* password = "PW";
-
-// MQTT Broker settings
-const char* mqtt_server = "BROKER";
-const int mqtt_port = 1883;
-const char* mqtt_user = "USER";
-const char* mqtt_password = "PW";
-
 WiFiClient espClient;
 PubSubClient client(espClient);
-
-const int ID = 1;
-const String topic = "Proxy" + String(ID);
-
-// Initialize Position Pins
-const byte TILE_PIN = 25;
-const byte ROW_PIN = 32;
-const byte COL_PIN = 33;
 
 int tileVoltage = 0;
 int rowVoltage = 0;
@@ -32,20 +15,12 @@ int colVoltage = 0;
 // Initialize Text Object
 extern lv_obj_t * ui_Text;
 
-// Initialize Encoder Pins
-const int encoderPinA = 27;
-const int encoderPinB = 14;
-
 volatile int encoderPos = 0;
 int lastEncoded = 0;
 
 // Predefined angles that represent the different modes
 const int32_t angles[] = { 0, 1190, -1280 };  
 int modeIndex = 0;
-
-// Screen resolution
-static const uint16_t screenWidth = 240;
-static const uint16_t screenHeight = 240;
 
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[screenWidth * screenHeight / 10];
@@ -66,11 +41,13 @@ void my_disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color
 }
 
 void incrementalEncoder() {
-  static int lastEncoderPos = encoderPos;  // Keep track of the last encoder position to detect changes
-  static bool processInput = true;         // Flag to decide whether to process this input or not
+  // Keep track of the last encoder position to detect changes
+  static int lastEncoderPos = encoderPos;
+  // Flag to decide whether to process this input or not
+  static bool processInput = true;         
 
-  int MSB = digitalRead(encoderPinA);             // Most significant bit
-  int LSB = digitalRead(encoderPinB);             // Least significant bit
+  int MSB = digitalRead(encoderPinA);      // Most significant bit
+  int LSB = digitalRead(encoderPinB);      // Least significant bit
   int encoded = (MSB << 1) | LSB;          // Combining the two bits
   int sum = (lastEncoded << 2) | encoded;  // Adding it to the previous encoded value
 
@@ -153,10 +130,10 @@ void reconnect() {
             // Attempt to connect
             if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
                 Serial.println("connected");
-                // Once connected, publish an announcement...
+                // Once connected, publish the ID to signify the connection
                 String payload = String(ID);
                 client.publish(topic.c_str(), payload.c_str());
-                // Subscribe to your topics here
+                // Subscribe to topic here
                 // client.subscribe("yourSubscriptionTopic");
             } else {
                 Serial.print("failed, rc=");
