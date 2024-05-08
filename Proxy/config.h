@@ -1,6 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// CHANGE PROXY ID HERE
+const int ID = 1;
+const String topic = "Proxy" + String(ID);
+
 // WIFI Credentials
 const char* ssid = "SSID";
 const char* password = "PW";

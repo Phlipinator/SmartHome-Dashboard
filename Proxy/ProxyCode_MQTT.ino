@@ -5,10 +5,6 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// CHANGE PROXY ID HERE
-const int ID = 1;
-const String topic = "Proxy" + String(ID);
-
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -211,7 +207,7 @@ void loop() {
 
   int currentModeIndex = modeIndex;
 
-  // Publish if there's a significant change
+  // Publish if there's a mode change
   if (currentModeIndex != lastModeIndex) {
     String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(currentModeIndex);
     client.publish(topic.c_str(), payload.c_str());
