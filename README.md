@@ -6,6 +6,6 @@ Contains the code than runs on the Raspberry Pi 4B.
 ## LED Control
 Contains the LED-Control Code for the ESp32 that is connected to a relay and the Neopixel LED-Strips, as well as a simple testing script for sending messages via serial from the Pi.
 ## MQTT Control
-Contains the code for the ESP32 that acts as a local MQTT-Broker.
+Contains the code for the ESP32 that acts as a local MQTT-Broker as well as a simple python script for testing.
 ## Proxy
 Contains the code with all libraries for the Proxies.
