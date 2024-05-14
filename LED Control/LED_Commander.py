@@ -1,3 +1,5 @@
+# This script is just an example serial communication script that sends messages to the ESP32 from the Raspberry Pi
+
 import time
 
 import serial
