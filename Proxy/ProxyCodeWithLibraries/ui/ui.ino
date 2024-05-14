@@ -124,8 +124,8 @@ void reconnect() {
     if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      String payload = String(ID);
-      client.publish(topic.c_str(), payload.c_str());
+      // String payload = String(ID);
+      // client.publish(topic.c_str(), payload.c_str());
       // Subscribe to your topics here
       // client.subscribe("yourSubscriptionTopic");
     } else {

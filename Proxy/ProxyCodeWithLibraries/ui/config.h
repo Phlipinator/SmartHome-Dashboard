@@ -2,15 +2,15 @@
 #define CONFIG_H
 
 // CHANGE PROXY ID HERE
-const int ID = 2;
+const int ID = 1;
 const String topic = "Proxy" + String(ID);
 
 // WIFI Credentials
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "Dashboard";
+const char* password = "muchPrivate";
 
 // MQTT Broker settings
-const char* mqtt_server = "";
+const char* mqtt_server = "192.168.4.1";
 const int mqtt_port = 1883;
 const char* mqtt_user = "";
 const char* mqtt_password = "";
