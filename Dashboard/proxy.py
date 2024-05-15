@@ -23,6 +23,23 @@ class Proxy:
         self.is_plugged_in = pluggedIn
         self.config = Config()
 
+    def update(self, tile, row, col, state, pluggedIn):
+        """
+        Update the values of the proxy.
+
+        Args:
+            tile: The raw value read from the ADC for the tile.
+            row: The raw value read from the ADC for the row.
+            col: The raw value read from the ADC for the column.
+            state: The state of the proxy
+            pluggedIn: A boolean indicating if the proxy is plugged in or not.
+        """
+        self.tileValue = tile
+        self.rowValue = row
+        self.colValue = col
+        self.state = state
+        self.is_plugged_in = pluggedIn
+
     def calculate_voltage(self, raw_value, type):
         """
         Calculate the voltage based on the type of voltage divider.
