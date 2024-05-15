@@ -29,11 +29,17 @@ try:
                         # Create new Proxy instance if it does not exist
                         proxies[proxy_id] = Proxy(tile, row, col, state, True)
                         print(f"Created new {proxy_id} with tile={tile}, row={row}, col={col}, state={state}")
+                        # Get and print position after creation
+                        position = proxies[proxy_id].get_position()
+                        print(f"Position of {proxy_id}: {position}")
                     else:
                         # Update existing Proxy instance
                         proxy = proxies[proxy_id]
                         proxy.update(tile, row, col, state, True)  # Assuming the Proxy class has an update method
                         print(f"Updated {proxy_id} with tile={tile}, row={row}, col={col}, state={state}")
+                        # Get and print position after update
+                        position = proxy.get_position()
+                        print(f"Position of {proxy_id}: {position}")
 except KeyboardInterrupt:
     print("Closing serial connection...")
     positionSerial.close()
