@@ -62,7 +62,7 @@ class Proxy:
 
     def convert_value(self, raw_value, type):
         """
-        Match the correct position based on the voltage.
+        Match the correct position based on the closest voltage match.
 
         Args:
             raw_value: The raw value read from the ADC.
@@ -70,26 +70,28 @@ class Proxy:
 
         Returns:
             The matched position number.
-            Returns 0 if no range matches.
+            Returns 0 if no predefined voltages are available.
         """
         voltage = self.calculate_voltage(raw_value, type)
         data_list = getattr(self.config, f"{type}List")
-        threshold = self.config.thresholds[type]
 
-        for voltage_level, number in data_list:
-            if voltage_level - threshold <= voltage <= voltage_level + threshold:
-                return number
-        return 0
+        if not data_list:
+            return 0  # Return 0 if data_list is empty or not defined
+
+        # Find the closest voltage match
+        closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+        return closest_match[1]
+
 
     def apply_adjustments(self, tile, row, col):
         """
-        Apply adjustments to the row and column values based on the tile number.
+        Apply adjustments to the row and column numbers based on the tile number.
         Converts the relative position on the board to the absolute position.
 
         Args:
-            tile: The tile number.
-            row: The original row value.
-            col: The original column value.
+            tile: The (absolute) tile number.
+            row: The relative row number.
+            col: The relative column number.
 
         Returns:
             The adjusted row and column values as an absolute position of the dashboard
