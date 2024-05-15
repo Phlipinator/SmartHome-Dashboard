@@ -50,18 +50,18 @@ class Config:
 
         # Stores the voltage values for each row
         self.rowList = [
-            (4.9, 1),
-            (3.0, 2),
-            (1.75, 3),
-            (0.4, 4),
+            (5.1, 1),
+            (3.6, 2),
+            (2.2, 3),
+            (0.7, 4),
         ]
 
         # Stores the voltage values for each column
         self.colList = [
-            (4.8, 1),
-            (4.3, 2),
-            (3.7, 3),
-            (3.2, 4),
+            (4.4, 1),
+            (2.9, 2),
+            (1.5, 3),
+            (0.2, 4),
         ]
 
-        self.thresholds = {"tile": 0.15, "row": 0.5, "col": 0.3}
+        self.thresholds = {"tile": 0.15, "row": 0.5, "col": 0.5}
