@@ -4,56 +4,17 @@ from config import Config
 
 
 class Proxy:
-    def __init__(self, bus, address):
+    def __init__(self, tile, row, col):
         """
         Initialize the Proxy object.
-
-        Args:
-            bus: The bus object used for I2C communication.
-            address: The address of the proxy device.
         """
-        self.bus = bus
-        self.address = address
         self.is_plugged_in = False
         self.position = None
+        self.tileValue = tile
+        self.rowValue = row
+        self.colValue = col
         self.state = None
         self.config = Config()
-
-    def check_connection(self):
-        """
-        Check if the proxy is connected to the dashboard.
-        """
-        attempts = 3
-        for _ in range(attempts):
-            try:
-                self.bus.read_i2c_block_data(self.address, 0x00, 8)
-                self.is_plugged_in = True
-                print("Proxy is connected.")
-                return  # Exit if successful
-            except IOError:
-                time.sleep(1)  # Wait a second and try again
-        self.is_plugged_in = False  # Set to false if all attempts fail
-
-    def read_proxy_data(self):
-        """
-        Read data from the proxy at the specified device address.
-
-        Returns:
-            The data read from the proxy as a triple of tile, row, and column values.
-            Returns None if the proxy is not plugged in.
-        """
-        if not self.is_plugged_in:
-            return None
-        try:
-            data = self.bus.read_i2c_block_data(self.address, 0x00, 8)
-            tileInt = (data[0] << 8) | data[1]
-            rowInt = (data[2] << 8) | data[3]
-            colInt = (data[4] << 8) | data[5]
-
-            return tileInt, rowInt, colInt
-        except IOError as e:
-            print(f"Read Error: {e}")
-            return None
 
     def calculate_voltage(self, raw_value, type):
         """
@@ -124,39 +85,15 @@ class Proxy:
             The position of the proxy as a tuple of row and column values.
             Returns None if the proxy is not connected or if there are too many read failures.
         """
-        self.check_connection()
+        if self.is_plugged_in:
+            tile = self.convert_value(self.tileValue, "tile")
+            row = self.convert_value(self.rowValue, "row")
+            col = self.convert_value(self.colValue, "col")
 
-        last_values = None
-        consistent_count = 0
-        failure_count = 0
+            if tile > 0:
+                self.position = self.apply_adjustments(tile, row, col)
+                return self.position
 
-        while consistent_count < 3:
-            if failure_count >= 5:
-                print("Exceeded maximum number of read failures.")
-                return None
-
-            data = self.read_proxy_data()
-            if data is None:
-                print("Failed to receive data, attempting again...")
-                failure_count += 1
-                time.sleep(1)
-                continue
-
-            tile_value, row_value, col_value = data
-            tile = self.convert_value(tile_value, "tile")
-            row = self.convert_value(row_value, "row")
-            col = self.convert_value(col_value, "col")
-            values = (tile, row, col)
-
-            if last_values == values:
-                consistent_count += 1
-            else:
-                last_values = values
-                consistent_count = 1
-
-            time.sleep(1)
-
-        if tile > 0:
-            return self.apply_adjustments(tile, row, col)
-
+            self.position = row, col
+            return self.position
         return None
