@@ -4,16 +4,23 @@ from config import Config
 
 
 class Proxy:
-    def __init__(self, tile, row, col):
+    def __init__(self, tile, row, col, state, pluggedIn):
         """
         Initialize the Proxy object.
+
+        Args:
+            tile: The raw value read from the ADC for the tile.
+            row: The raw value read from the ADC for the row.
+            col: The raw value read from the ADC for the column.
+            state: The state of the proxy
+            pluggedIn: A boolean indicating if the proxy is plugged in or not.
         """
-        self.is_plugged_in = False
         self.position = None
         self.tileValue = tile
         self.rowValue = row
         self.colValue = col
-        self.state = None
+        self.state = state
+        self.is_plugged_in = pluggedIn
         self.config = Config()
 
     def calculate_voltage(self, raw_value, type):
@@ -34,7 +41,7 @@ class Proxy:
             return adc * 1.51
         elif type == "col":
             return adc * 1.51
-        return adc
+        return None
 
     def convert_value(self, raw_value, type):
         """
