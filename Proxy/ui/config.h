@@ -6,7 +6,6 @@ const int ID = 1;
 const String pubTopic = "set_state_proxy_" + String(ID);
 const String subTopic = "is_state_proxy_" + String(ID);
 
-// WIFI Credentials
 const char* ssid = "DashboardAP";
 const char* password = "";
 
