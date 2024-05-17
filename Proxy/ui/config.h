@@ -8,9 +8,9 @@ const String subTopic = "is_state_proxy_" + String(ID);
 
 // WIFI Credentials
 const char* ssid = "DashboardAP";
-const char* password = "muchPrivate";
+const char* password = "";
 
-// MQTT Broker settings
+// MQTT broker credentials
 const char* mqtt_server = "";
 const char* mqtt_user = "";
 const char* mqtt_password = "";
