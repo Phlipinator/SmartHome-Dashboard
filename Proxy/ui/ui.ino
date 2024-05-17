@@ -106,13 +106,35 @@ void setup_wifi() {
 }
 
 void callback(char* topic, byte* message, unsigned int length) {
-  Serial.print("Message arrived on topic: ");
-  Serial.print(topic);
-  Serial.print(". Message: ");
+  // Convert the incoming message to a string
+  String msg = "";
   for (unsigned int i = 0; i < length; i++) {
-    Serial.print((char)message[i]);
+    msg += (char)message[i];
   }
-  Serial.println();
+
+  // Check if the message is a single digit number (0, 1, or 2)
+  if (msg.length() == 1 && isDigit(msg.charAt(0))) {
+    int value = msg.toInt();
+    
+    // Perform actions based on the value
+    switch (value) {
+      case 0:
+        // Network
+        lv_img_set_angle(ui_Text, angles[0]);
+        break;
+      case 1:
+        // Third Party
+        lv_img_set_angle(ui_Text, angles[1]);
+        break;
+      case 2:
+        // Online
+        lv_img_set_angle(ui_Text, angles[2]);
+        break;
+      default:
+        Serial.print("Unsupported message");
+        break;
+    }
+  }
 }
 
 void reconnect() {
@@ -127,7 +149,7 @@ void reconnect() {
       // String payload = String(ID);
       // client.publish(topic.c_str(), payload.c_str());
       // Subscribe to your topics here
-      // client.subscribe("yourSubscriptionTopic");
+      client.subscribe(subTopic.c_str());
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -210,7 +232,7 @@ void loop() {
   // Publish if there's a mode change
   if (currentModeIndex != lastModeIndex) {
     String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(currentModeIndex);
-    client.publish(topic.c_str(), payload.c_str());
+    client.publish(pubTopic.c_str(), payload.c_str());
 
     lastModeIndex = currentModeIndex;
   }

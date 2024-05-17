@@ -66,7 +66,7 @@ class Proxy:
 
         Args:
             raw_value: The raw value read from the ADC.
-            type: The type of voltage divider ("tile", "row", or "col").
+            type: The type of pin ("tile", "row", or "col").
 
         Returns:
             The matched position number.
@@ -76,7 +76,7 @@ class Proxy:
         data_list = getattr(self.config, f"{type}List")
 
         if not data_list:
-            return 0  # Return 0 if data_list is empty or not defined
+            return 0
 
         # Find the closest voltage match
         closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
