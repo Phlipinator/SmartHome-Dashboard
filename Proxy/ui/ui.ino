@@ -154,7 +154,7 @@ void reconnect() {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying, non-blocking wait could be implemented here
+      // Wait 5 seconds before retrying
       delay(5000);
     }
   }
