@@ -45,8 +45,8 @@ class LightController:
         Adds a message with the given coordinates to the message queue.
 
         Args:
-            x (float): The x-coordinate.
-            y (float): The y-coordinate.
+            x (int): The x-coordinate.
+            y (int): The y-coordinate.
 
         """
         message = f"{x},{y}\n"
@@ -58,10 +58,10 @@ class LightController:
         Adds a message with the given path coordinates to the message queue.
 
         Args:
-            x1 (float): The x-coordinate of the starting point.
-            y1 (float): The y-coordinate of the starting point.
-            x2 (float): The x-coordinate of the ending point.
-            y2 (float): The y-coordinate of the ending point.
+            x1 (int): The x-coordinate of the starting point.
+            y1 (int): The y-coordinate of the starting point.
+            x2 (int): The x-coordinate of the ending point.
+            y2 (int): The y-coordinate of the ending point.
 
         """
         message = f"{x1},{y1},{x2},{y2}\n"
