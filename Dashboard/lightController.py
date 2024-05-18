@@ -6,6 +6,21 @@ import serial
 
 
 class LightController:
+    """
+    Class that controls the communication with the light controller ESP32.
+
+    Args:
+        port (str): The serial port to connect to.
+        baudrate (int): The baud rate for the serial communication should be 9600).
+
+    Attributes:
+        serial_port (serial.Serial): The serial port object for communication.
+        message_queue (Queue): A queue to store the messages to be sent.
+        delay (int): The minimum delay (in seconds) between sending messages.
+        worker_thread (threading.Thread): The thread for sending messages.
+
+    """
+
     def __init__(self, port, baudrate):
         self.serial_port = serial.Serial(port, baudrate, timeout=1)
         self.message_queue = Queue()
@@ -15,6 +30,10 @@ class LightController:
         self.worker_thread.start()
 
     def _send_messages(self):
+        """
+        A private method that continuously sends messages from the message queue.
+
+        """
         while True:
             message = self.message_queue.get()
             self.serial_port.write(message.encode())
@@ -22,11 +41,29 @@ class LightController:
             time.sleep(self.delay)
 
     def send_coordinates(self, x, y):
+        """
+        Adds a message with the given coordinates to the message queue.
+
+        Args:
+            x (float): The x-coordinate.
+            y (float): The y-coordinate.
+
+        """
         message = f"{x},{y}\n"
         self.message_queue.put(message)
         print("Message added to queue.")
 
     def send_path(self, x1, y1, x2, y2):
+        """
+        Adds a message with the given path coordinates to the message queue.
+
+        Args:
+            x1 (float): The x-coordinate of the starting point.
+            y1 (float): The y-coordinate of the starting point.
+            x2 (float): The x-coordinate of the ending point.
+            y2 (float): The y-coordinate of the ending point.
+
+        """
         message = f"{x1},{y1},{x2},{y2}\n"
         self.message_queue.put(message)
         print("Message added to queue.")
