@@ -11,6 +11,6 @@ class LightController:
         message = f"{x},{y}\n"
         self.serial_port.write(message.encode())
     
-    def send_rectangle(self, x1, y1, x2, y2):
+    def send_path(self, x1, y1, x2, y2):
         message = f"{x1},{y1},{x2},{y2}\n"
         self.serial_port.write(message.encode())

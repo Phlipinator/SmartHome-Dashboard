@@ -92,6 +92,12 @@ void setup_wifi() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
+  // Set the Wi-Fi mode
+  WiFi.mode(WIFI_STA);
+
+  // Set the minimum security level
+  WiFi.setMinSecurity(WIFI_AUTH_WPA_PSK);
+
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -154,7 +160,6 @@ void reconnect() {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
       delay(5000);
     }
   }
