@@ -86,8 +86,8 @@ class MessageHandler:
         start_x, start_y = start_proxy.position
         end_x, end_y = end_proxy.position
 
-        print(start_x, start_y, end_x, end_y)
-        #self.light_controller.send_path(start_x, start_y, end_x, end_y)
+        print("Sending path from Proxy {start_proxy.ID} to Proxy {end_proxy.ID}")
+        self.light_controller.send_path(start_x, start_y, end_x, end_y)
 
 
 
