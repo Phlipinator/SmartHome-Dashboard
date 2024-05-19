@@ -150,7 +150,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Create a unique client ID
-    String clientId = "ESP32Client-" + String((uint32_t)ESP.getEfuseMac(), HEX);
+    String clientId = "Dashboard_Proxy_" + String(ID);
     // Attempt to connect
     if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
       Serial.println("connected");
