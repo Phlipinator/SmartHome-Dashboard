@@ -1,6 +1,15 @@
 class Config:
+    """
+    A class that stores the configuration settings for the Smart Home Dashboard.
+
+    Attributes:
+        adjustmentTable (list): Stores adjustments for each tile in the format (row, column).
+        tileList (list): Stores the voltage values for each tile.
+        rowList (list): Stores the voltage values for each row.
+        colList (list): Stores the voltage values for each column.
+    """
+
     def __init__(self):
-        # Stores adjustments for each tile in the format (row, column)
         self.adjustmentTable = [
             # Row 1
             (0, 0),  # Tile 1
@@ -24,7 +33,6 @@ class Config:
             (12, 12),  # Tile 16
         ]
 
-        # Stores the voltage values for each tile
         self.tileList = [
             # Row 1
             (5.26, 4),
@@ -48,7 +56,6 @@ class Config:
             (0.06, 16),
         ]
 
-        # Stores the voltage values for each row
         self.rowList = [
             (5.1, 1),
             (3.6, 2),
