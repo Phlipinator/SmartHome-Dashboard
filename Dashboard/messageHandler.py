@@ -30,6 +30,25 @@ class MessageHandler:
         print(f"Message received on topic {topic}: {payload}")
         self.handle_message(topic, payload)
 
+    def handle_message(self, topic, payload):
+        # Extract the proxy ID from the topic
+        proxy_ID = int(topic.split("_")[-1])
+        proxy = next((p for p in self.proxy_list if p.ID == proxy_ID), None)
+        if proxy is None:
+            print(f"Proxy with ID {proxy_ID} not found.")
+            return
+        else:
+            print(f"Proxy with ID {proxy_ID} found.")
+            if(topic.split("_")[0] == "set"):
+                data = payload.split(",")
+                proxy.update(int(data[0]), int(data[1]), int(data[2]), int(data[3]), True)
+                print(f"Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
+            elif(topic.split("_")[0] == "is"):
+                proxy.state = int(payload)
+                print(f"Updated Proxy {proxy_ID} State {payload}.")
+            else:
+                print("Invalid topic.")
+
     def start(self):
         self.client.connect(self.broker_address)
         self.client.loop_start()
