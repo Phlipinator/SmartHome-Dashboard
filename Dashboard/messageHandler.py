@@ -82,21 +82,13 @@ class MessageHandler:
             print("Proxy IDs not connected")
             return
 
-        # Debug output
-        print("Start Proxy Position:", start_proxy.position)
-        print("End Proxy Position:", end_proxy.position)
+        # Extracting x and y coordinates from the position tuple
+        start_x, start_y = start_proxy.position
+        end_x, end_y = end_proxy.position
 
-        # Extracting x and y coordinates from the position attribute
-        start_x, start_y = map(int, start_proxy.position.split(','))
-        end_x, end_y = map(int, end_proxy.position.split(','))
+        print(start_x, start_y, end_x, end_y)
+        #self.light_controller.send_path(start_x, start_y, end_x, end_y)
 
-        # Debug output
-        print("Start Position (x, y):", start_x, start_y)
-        print("End Position (x, y):", end_x, end_y)
-
-
-        print(start_x,start_y,end_x,end_y)
-        #self.light_controller.send_path(start_x,start_y,end_x,end_y)
 
 
     def start(self):
