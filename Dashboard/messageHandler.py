@@ -74,19 +74,28 @@ class MessageHandler:
         if len(data) != 2:
             print("Invalid payload format for animation message.")
             return
-        
+
         start_proxy = next((p for p in self.proxy_list if p.ID == int(data[0])), None)
         end_proxy = next((p for p in self.proxy_list if p.ID == int(data[1])), None)
 
-        if(start_proxy is None or end_proxy is None):
+        if start_proxy is None or end_proxy is None:
             print("Proxy IDs not connected")
             return
-        
+
+        # Debug output
+        print("Start Proxy Position:", start_proxy.position)
+        print("End Proxy Position:", end_proxy.position)
+
         # Extracting x and y coordinates from the position attribute
         start_x, start_y = map(int, start_proxy.position.split(','))
         end_x, end_y = map(int, end_proxy.position.split(','))
 
+        # Debug output
+        print("Start Position (x, y):", start_x, start_y)
+        print("End Position (x, y):", end_x, end_y)
+
         self.light_controller.send_path(start_x, start_y, end_x, end_y)
+
 
     def start(self):
         self.client.connect(self.broker_address)
