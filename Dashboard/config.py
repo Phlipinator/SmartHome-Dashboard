@@ -7,6 +7,7 @@ class Config:
         tileList (list): Stores the voltage values for each tile.
         rowList (list): Stores the voltage values for each row.
         colList (list): Stores the voltage values for each column.
+        proxyList (list): Stores the proxy information in the format (x, y, State).
     """
 
     def __init__(self):
@@ -63,7 +64,6 @@ class Config:
             (0.7, 4),
         ]
 
-        # Stores the voltage values for each column
         self.colList = [
             (4.4, 1),
             (2.9, 2),

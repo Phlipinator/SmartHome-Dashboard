@@ -10,6 +10,15 @@ class MessageHandler:
         self.proxy_list = proxy_list
         self.light_controller = light_controller
         self.animationTopic = animationTopic
+
+        self.proxy_data = [
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+        ]
+
         self.client = mqtt.Client()
 
         self.client.on_connect = self.on_connect
@@ -32,7 +41,7 @@ class MessageHandler:
         payload = msg.payload.decode()
         print(f"Message received on topic {topic}: {payload}")
         if(topic == self.animationTopic):
-           self.handle_animation(payload)
+           self.handle_animation(payload, "path")
         else:
             self.handle_message(topic, payload)
 
@@ -74,25 +83,43 @@ class MessageHandler:
         print(f"Proxy {proxy.ID} position or state has changed. Handling the change...")
         # Add logic to handle the change here
 
-    def handle_animation(self, payload):
-        data = payload.split(",")
-        if len(data) != 2:
-            print("Invalid payload format for animation message.")
-            return
+    def handle_animation(self, payload, animationType):
+        if animationType == "path":
+            data = payload.split(",")
+            if len(data) != 2:
+                print("Invalid payload format for path animation.")
+                return
 
-        start_proxy = next((p for p in self.proxy_list if p.ID == int(data[0])), None)
-        end_proxy = next((p for p in self.proxy_list if p.ID == int(data[1])), None)
+            start_proxy = next((p for p in self.proxy_list if p.ID == int(data[0])), None)
+            end_proxy = next((p for p in self.proxy_list if p.ID == int(data[1])), None)
 
-        if start_proxy is None or end_proxy is None:
-            print("Proxy IDs not connected")
-            return
+            if start_proxy is None or end_proxy is None:
+                print("Proxy IDs not connected")
+                return
 
-        # Extracting x and y coordinates from the position tuple
-        start_x, start_y = start_proxy.position
-        end_x, end_y = end_proxy.position
+            # Extracting x and y coordinates from the position tuple
+            start_x, start_y = start_proxy.position
+            end_x, end_y = end_proxy.position
 
-        print("Sending path from Proxy {start_proxy.ID} to Proxy {end_proxy.ID}")
-        self.light_controller.send_path(start_x, start_y, end_x, end_y)
+            print("Sending path from Proxy {start_proxy.ID} to Proxy {end_proxy.ID}")
+            self.light_controller.send_path(start_x, start_y, end_x, end_y)
+
+        elif animationType == "coordinates":
+            if len(data) != 1:
+                print("Invalid payload format for coordinates animation.")
+                return
+            
+            proxy = next((p for p in self.proxy_list if p.ID == int(payload)), None)
+
+            if proxy is None:
+                print("Proxy ID not found.")
+                return
+            
+            print("Sending coordinates for Proxy {proxy.ID}.")
+            self.light_controller.send_coordinates(proxy.position[0], proxy.position[1])
+
+        else:
+            print("Invalid animation type.")
 
     def start(self):
         self.client.connect(self.broker_address)
