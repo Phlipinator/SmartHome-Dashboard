@@ -25,6 +25,7 @@ class MessageHandler:
             client.subscribe(is_state_topic)
             print(f"Subscribed to {set_state_topic} and {is_state_topic}")
         client.subscribe(self.animationTopic)
+        print(f"Subscribed to {self.animationTopic}")
 
     def on_message(self, client, userdata, msg):
         topic = msg.topic
@@ -41,7 +42,7 @@ class MessageHandler:
         proxy_ID = int(parts[-1])
         
         # Find the proxy
-        
+        proxy = next((p for p in self.proxy_list if p.ID == proxy_ID), None)
         
         if proxy is None:
             print(f"Proxy with ID {proxy_ID} not found.")
