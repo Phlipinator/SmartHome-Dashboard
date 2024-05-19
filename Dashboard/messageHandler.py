@@ -32,7 +32,7 @@ class MessageHandler:
         payload = msg.payload.decode()
         print(f"Message received on topic {topic}: {payload}")
         if(topic == self.animationTopic):
-            handle_animation(payload)
+           self.handle_animation(payload)
         else:
             self.handle_message(topic, payload)
 
