@@ -48,10 +48,6 @@ class MessageHandler:
             print(f"Proxy with ID {proxy_ID} not found.")
             return
         
-        # Store the old position and state
-        old_position = proxy.position
-        old_state = proxy.state
-        
         # Process based on topic type
         if parts[0] == "set":
             data = payload.split(",")
@@ -60,42 +56,23 @@ class MessageHandler:
                 print("Invalid payload format for 'set' message.")
                 return
             
-            tile_value = int(data[0])
-            row_value = int(data[1])
-            col_value = int(data[2])
-            state = int(data[3])
+            proxy.update(int(data[0]), int(data[1]), int(data[2]), int(data[3]), True)
+            print(f"Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
-            # Update the proxy with the new position and state
-            proxy.update(tile_value, row_value, col_value, state, True)
-            print(f"Updated Proxy {proxy_ID} with TileValue {tile_value}, rowValue {row_value}, colValue {col_value}, and State {state}.")
-            
-            # Compare the new position and state with the old values
-            if (tile_value, row_value, col_value) != old_position or state != old_state:
-                # Call a function to handle the change
-                self.handle_proxy_change(proxy)
-                
         elif parts[0] == "is":
             try:
-                state = int(payload)
+                proxy.state = int(payload)
             except ValueError:
                 print("Invalid payload format for 'is' message.")
                 return
-            
-            # Update the proxy state
-            proxy.state = state
-            print(f"Updated Proxy {proxy_ID} State {state}.")
-            
-            # Compare the new state with the old value
-            if state != old_state:
-                # Call a function to handle the change
-                self.handle_proxy_change(proxy)
+            print(f"Updated Proxy {proxy_ID} State {payload}.")
         else:
             print("Invalid topic.")
 
     def handle_proxy_change(self, proxy):
         # Function to handle the change in position or state of the proxy
         print(f"Proxy {proxy.ID} position or state has changed. Handling the change...")
-        # Add your logic to handle the change here
+        # Add logic to handle the change here
 
     def handle_animation(self, payload):
         data = payload.split(",")
