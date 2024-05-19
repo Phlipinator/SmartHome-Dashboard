@@ -4,7 +4,7 @@ from config import Config
 
 
 class Proxy:
-    def __init__(self, tile, row, col, state, pluggedIn):
+    def __init__(self, tile, row, col, state, pluggedIn, ID):
         """
         Initialize the Proxy object.
 
@@ -21,6 +21,7 @@ class Proxy:
         self.colValue = col
         self.state = state
         self.is_plugged_in = pluggedIn
+        self.ID = ID
         self.config = Config()
 
     def update(self, tile, row, col, state, pluggedIn):
