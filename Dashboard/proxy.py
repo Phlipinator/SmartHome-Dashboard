@@ -41,7 +41,7 @@ class Proxy:
         self.state = state
         self.is_plugged_in = pluggedIn
 
-        self.get_position()
+        self.set_position()
 
     def calculate_voltage(self, raw_value, type):
         """
@@ -106,7 +106,7 @@ class Proxy:
             return adjusted_row, adjusted_col
         return row, col
 
-    def get_position(self):
+    def set_position(self):
         """
         Get the position of the proxy.
 
@@ -121,8 +121,7 @@ class Proxy:
 
             if tile > 0:
                 self.position = self.apply_adjustments(tile, row, col)
-                return self.position
+                return
 
             self.position = row, col
-            return self.position
-        return None
+            return
