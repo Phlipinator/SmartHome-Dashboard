@@ -29,3 +29,7 @@ class MessageHandler:
         payload = msg.payload.decode()
         print(f"Message received on topic {topic}: {payload}")
         self.handle_message(topic, payload)
+
+    def start(self):
+        self.client.connect(self.broker_address)
+        self.client.loop_start()
