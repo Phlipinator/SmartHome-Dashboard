@@ -5,10 +5,11 @@ from proxy import Proxy
 
 
 class MessageHandler:
-    def __init__(self, broker_address, proxy_list, light_controller):
+    def __init__(self, broker_address, proxy_list, light_controller, animationTopic):
         self.broker_address = broker_address
         self.proxy_list = proxy_list
         self.light_controller = light_controller
+        self.animationTopic = animationTopic
         self.client = mqtt.Client()
 
         self.client.on_connect = self.on_connect
@@ -23,12 +24,16 @@ class MessageHandler:
             client.subscribe(set_state_topic)
             client.subscribe(is_state_topic)
             print(f"Subscribed to {set_state_topic} and {is_state_topic}")
+        client.subscribe(self.animationTopic)
 
     def on_message(self, client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode()
         print(f"Message received on topic {topic}: {payload}")
-        self.handle_message(topic, payload)
+        if(topic == self.animationTopic):
+            handle_animation(payload)
+        else:
+            self.handle_message(topic, payload)
 
     def handle_message(self, topic, payload):
         # Extract the proxy ID from the topic
@@ -36,7 +41,7 @@ class MessageHandler:
         proxy_ID = int(parts[-1])
         
         # Find the proxy
-        proxy = next((p for p in self.proxy_list if p.ID == proxy_ID), None)
+        
         
         if proxy is None:
             print(f"Proxy with ID {proxy_ID} not found.")
@@ -63,6 +68,20 @@ class MessageHandler:
         else:
             print("Invalid topic.")
 
+    def handle_animation(self, payload):
+        data = payload.split(",")
+        if len(data) != 2:
+            print("Invalid payload format for animation message.")
+            return
+        
+        start_proxy = next((p for p in self.proxy_list if p.ID == data[0]), None)
+        end_proxy = next((p for p in self.proxy_list if p.ID == data[1]), None)
+
+        if(start_proxy is None or end_proxy is None):
+            print("Proxy IDs not connected")
+            return
+        
+        self.light_controller.send_path(start_proxy.position, end_proxy.position)
 
     def start(self):
         self.client.connect(self.broker_address)
