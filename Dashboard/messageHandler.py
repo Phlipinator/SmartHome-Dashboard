@@ -75,8 +75,8 @@ class MessageHandler:
             print("Invalid payload format for animation message.")
             return
         
-        start_proxy = next((p for p in self.proxy_list if p.ID == data[0]), None)
-        end_proxy = next((p for p in self.proxy_list if p.ID == data[1]), None)
+        start_proxy = next((p for p in self.proxy_list if p.ID == int(data[0])), None)
+        end_proxy = next((p for p in self.proxy_list if p.ID == int(data[1])), None)
 
         if(start_proxy is None or end_proxy is None):
             print("Proxy IDs not connected")
