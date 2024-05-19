@@ -94,7 +94,9 @@ class MessageHandler:
         print("Start Position (x, y):", start_x, start_y)
         print("End Position (x, y):", end_x, end_y)
 
-        self.light_controller.send_path(start_x,start_y,end_x,end_y)
+
+        print(start_x,start_y,end_x,end_y)
+        #self.light_controller.send_path(start_x,start_y,end_x,end_y)
 
 
     def start(self):
