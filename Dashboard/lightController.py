@@ -11,7 +11,7 @@ class LightController:
 
     Args:
         port (str): The serial port to connect to.
-        baudrate (int): The baud rate for the serial communication should be 9600).
+        baudrate (int): The baud rate for the serial communication (should be 9600).
 
     Attributes:
         serial_port (serial.Serial): The serial port object for communication.

@@ -126,15 +126,18 @@ void callback(char* topic, byte* message, unsigned int length) {
     switch (value) {
       case 0:
         // Network
-        lv_img_set_angle(ui_Text, angles[0]);
+        modeIndex = 0;
+        lv_img_set_angle(ui_Text, angles[modeIndex]);
         break;
       case 1:
         // Third Party
-        lv_img_set_angle(ui_Text, angles[1]);
+        modeIndex = 1;
+        lv_img_set_angle(ui_Text, angles[modeIndex]);
         break;
       case 2:
         // Online
-        lv_img_set_angle(ui_Text, angles[2]);
+        modeIndex = 2;
+        lv_img_set_angle(ui_Text, angles[modeIndex]);
         break;
       default:
         Serial.print("Unsupported message");
