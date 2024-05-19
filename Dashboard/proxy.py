@@ -41,6 +41,8 @@ class Proxy:
         self.state = state
         self.is_plugged_in = pluggedIn
 
+        self.get_position()
+
     def calculate_voltage(self, raw_value, type):
         """
         Calculate the voltage based on the type of voltage divider.
