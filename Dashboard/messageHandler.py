@@ -92,13 +92,13 @@ class MessageHandler:
                 self.update_proxy_data(proxy)
 
             elif(proxy.state != self.proxy_data[proxy.ID][2]):
-                self.handle_animation("{proxy.ID}, 0", "path")
+                self.handle_animation(f"{proxy.ID}, 0", "path")
                 self.update_proxy_data(proxy)
             else:
                 return
         elif changeType == "is":
             if(proxy.state != self.proxy_data[proxy.ID][2]):
-                self.handle_animation("0, {proxy.ID}", "path")
+                self.handle_animation(f"0, {proxy.ID}", "path")
                 self.update_proxy_data(proxy)
             else:
                 return
