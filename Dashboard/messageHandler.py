@@ -59,6 +59,7 @@ class MessageHandler:
             client.subscribe(set_state_topic)
             client.subscribe(is_state_topic)
             print(f"Subscribed to {set_state_topic} and {is_state_topic}")
+
             # Subscribe to general animation topic for the hub
         client.subscribe(self.animationTopic)
         print(f"Subscribed to {self.animationTopic}")
@@ -76,6 +77,7 @@ class MessageHandler:
         topic = msg.topic
         payload = msg.payload.decode()
         print(f"Message received on topic {topic}: {payload}")
+
         if(topic == self.animationTopic):
            self.handle_animation(payload, "path")
         else:
@@ -120,7 +122,7 @@ class MessageHandler:
             except ValueError:
                 print("Invalid payload format for 'is' message.")
                 return
-            self.compare_proxy_data(proxy, "set")
+            self.compare_proxy_data(proxy, "is")
             print(f"Updated Proxy {proxy_ID} State {payload}.")
         else:
             print("Invalid topic.")
@@ -189,7 +191,7 @@ class MessageHandler:
                 print("Proxy IDs not connected")
                 return
             
-            if(start_proxy.position == None or end_proxy.position == None):
+            if(start_proxy.position is None or end_proxy.position is None):
                 print("Proxy positions not set")
                 return
             
@@ -211,7 +213,7 @@ class MessageHandler:
                 print("Proxy ID not found.")
                 return
             
-            if (proxy.position == None):
+            if (proxy.position is None):
                 print("Proxy position not set.")
                 return
             

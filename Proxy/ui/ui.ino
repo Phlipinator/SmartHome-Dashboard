@@ -82,6 +82,8 @@ void incrementalEncoder() {
     // Snap rotation to the nearest predefined angle
     lv_img_set_angle(ui_Text, angles[modeIndex]);
 
+    publishMessage();
+
     lastEncoderPos = encoderPos;  // Update last position for next comparison
   }
 }
@@ -142,6 +144,7 @@ void callback(char* topic, byte* message, unsigned int length) {
         break;
     }
     lv_img_set_angle(ui_Text, angles[modeIndex]);
+    encoderPos = modeIndex;
   }
 }
 
@@ -220,6 +223,12 @@ void setup() {
   client.setCallback(callback);
 }
 
+void publishMessage(){
+    String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(modeIndex);
+    client.publish(pubTopic.c_str(), payload.c_str());
+    Serial.println("Published state change");
+}
+
 void loop() {
   lv_timer_handler();  // Let LVGL do its work
 
@@ -231,18 +240,11 @@ void loop() {
   }
   client.loop();
 
-  // Initialize to -1 to ensure it triggers the first time
-  static int lastModeIndex = -1;  
-
-  int currentModeIndex = modeIndex;
-
-  // Publish if there's a mode change
-  if (currentModeIndex != lastModeIndex) {
-    String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(currentModeIndex);
-    client.publish(pubTopic.c_str(), payload.c_str());
-    Serial.println("Published state change");
-
-    lastModeIndex = currentModeIndex;
+  // Publish the initial State once when powered on
+  static bool initialPublish = true;
+  if(initialPublish && client.connected()){
+    publishMessage();
+    initialPublish = false;
   }
 
   // Small delay to limit the update rate
