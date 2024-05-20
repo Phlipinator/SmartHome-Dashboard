@@ -52,6 +52,7 @@ void incrementalEncoder() {
   int sum = (lastEncoded << 2) | encoded;  // Adding it to the previous encoded value
 
   if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011 || sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) {
+    encoderPos = modeIndex;
     if (processInput) {
       // Determine direction and increment or decrement encoderPos accordingly
       if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011)
@@ -127,22 +128,20 @@ void callback(char* topic, byte* message, unsigned int length) {
       case 0:
         // Network
         modeIndex = 0;
-        lv_img_set_angle(ui_Text, angles[modeIndex]);
         break;
       case 1:
         // Third Party
         modeIndex = 1;
-        lv_img_set_angle(ui_Text, angles[modeIndex]);
         break;
       case 2:
         // Online
         modeIndex = 2;
-        lv_img_set_angle(ui_Text, angles[modeIndex]);
         break;
       default:
         Serial.print("Unsupported message");
         break;
     }
+    lv_img_set_angle(ui_Text, angles[modeIndex]);
   }
 }
 
@@ -241,6 +240,7 @@ void loop() {
   if (currentModeIndex != lastModeIndex) {
     String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(currentModeIndex);
     client.publish(pubTopic.c_str(), payload.c_str());
+    Serial.println("Published state change");
 
     lastModeIndex = currentModeIndex;
   }

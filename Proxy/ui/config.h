@@ -7,10 +7,10 @@ const String pubTopic = "set_state_proxy_" + String(ID);
 const String subTopic = "is_state_proxy_" + String(ID);
 
 const char* ssid = "DashboardAP";
-const char* password = "";
+const char* password = "muchPrivate";
 
 // MQTT broker credentials
-const char* mqtt_server = "";
+const char* mqtt_server = "test.mosquitto.org";
 const char* mqtt_user = "";
 const char* mqtt_password = "";
 
