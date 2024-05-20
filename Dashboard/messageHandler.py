@@ -188,7 +188,11 @@ class MessageHandler:
             if start_proxy is None or end_proxy is None:
                 print("Proxy IDs not connected")
                 return
-
+            
+            if(start_proxy.position == None or end_proxy.position == None):
+                print("Proxy positions not set")
+                return
+            
             # Extracting x and y coordinates from the position tuple
             start_x, start_y = start_proxy.position
             end_x, end_y = end_proxy.position
@@ -207,6 +211,10 @@ class MessageHandler:
                 print("Proxy ID not found.")
                 return
             
+            if (proxy.position == None):
+                print("Proxy position not set.")
+                return
+            
             print("Sending coordinates for Proxy {proxy.ID}.")
             self.light_controller.send_coordinates(proxy.position[0], proxy.position[1])
 
@@ -220,7 +228,7 @@ class MessageHandler:
         """
         self.client.connect(self.broker_address)
         self.client.loop_start()
-        
+
     def stop(self):
         """
         Stops the message handler and disconnects from the MQTT broker.
