@@ -33,6 +33,7 @@ class MessageHandler:
             client.subscribe(set_state_topic)
             client.subscribe(is_state_topic)
             print(f"Subscribed to {set_state_topic} and {is_state_topic}")
+            # Subscribe to general animation topic for the hub
         client.subscribe(self.animationTopic)
         print(f"Subscribed to {self.animationTopic}")
 
@@ -66,6 +67,8 @@ class MessageHandler:
                 return
             
             proxy.update(int(data[0]), int(data[1]), int(data[2]), int(data[3]), True)
+            self.compare_proxy_data(proxy, "set")
+
             print(f"Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
         elif parts[0] == "is":
@@ -74,14 +77,33 @@ class MessageHandler:
             except ValueError:
                 print("Invalid payload format for 'is' message.")
                 return
+            self.compare_proxy_data(proxy, "set")
             print(f"Updated Proxy {proxy_ID} State {payload}.")
         else:
             print("Invalid topic.")
 
-    def handle_proxy_change(self, proxy):
-        # Function to handle the change in position or state of the proxy
-        print(f"Proxy {proxy.ID} position or state has changed. Handling the change...")
-        # Add logic to handle the change here
+    def compare_proxy_data(self, proxy, changeType):
+        if changeType == "set":
+            # Extracting x and y coordinates from the position tuple
+            proxy_row, proxy_col = proxy.position
+
+            if(proxy_row != self.proxy_data[proxy.ID][0] or proxy_col != self.proxy_data[proxy.ID][1]):
+                self.handle_animation(proxy.ID, "coordinates")
+                # TODO update proxy data
+
+            elif(proxy.state != self.proxy_data[proxy.ID][2]):
+                self.handle_animation((proxy.ID, 0), "path")
+                # TODO update proxy data
+            else:
+                return
+        elif changeType == "is":
+            if(proxy.state != self.proxy_data[proxy.ID][2]):
+                self.handle_animation((0, proxy.ID), "path")
+                # TODO update proxy data
+            else:
+                return
+        else:
+            print("Invalid change type.")
 
     def handle_animation(self, payload, animationType):
         if animationType == "path":
