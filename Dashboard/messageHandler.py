@@ -220,3 +220,11 @@ class MessageHandler:
         """
         self.client.connect(self.broker_address)
         self.client.loop_start()
+        
+    def stop(self):
+        """
+        Stops the message handler and disconnects from the MQTT broker.
+
+        """
+        self.client.loop_stop()
+        self.client.disconnect()
