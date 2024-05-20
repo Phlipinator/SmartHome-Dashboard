@@ -127,7 +127,7 @@ class MessageHandler:
             self.light_controller.send_path(start_x, start_y, end_x, end_y)
 
         elif animationType == "coordinates":
-            if len(data) != 1:
+            if len(payload) != 1:
                 print("Invalid payload format for coordinates animation.")
                 return
             
