@@ -1,6 +1,16 @@
 class Config:
+    """
+    A class that stores the configuration settings for the Smart Home Dashboard.
+
+    Attributes:
+        adjustmentTable (list): Stores adjustments for each tile in the format (row, column).
+        tileList (list): Stores the voltage values for each tile.
+        rowList (list): Stores the voltage values for each row.
+        colList (list): Stores the voltage values for each column.
+        proxyList (list): Stores the proxy information in the format (x, y, State).
+    """
+
     def __init__(self):
-        # Stores adjustments for each tile in the format (row, column)
         self.adjustmentTable = [
             # Row 1
             (0, 0),  # Tile 1
@@ -24,44 +34,39 @@ class Config:
             (12, 12),  # Tile 16
         ]
 
-        # Stores the voltage values for each tile
         self.tileList = [
             # Row 1
-            (5.0, 4),
-            (4.4, 3),
-            (4.0, 2),
-            (3.64, 1),
+            (5.26, 4),
+            (4.57, 3),
+            (4.05, 2),
+            (3.88, 1),
             # Row 2
-            (3.3, 5),
-            (3.0, 6),
-            (2.68, 7),
-            (2.36, 8),
+            (3.51, 5),
+            (3.19, 6),
+            (2.86, 7),
+            (2.56, 8),
             # Row 3
-            (2.0, 12),
-            (1.8, 11),
-            (1.5, 10),
-            (1.22, 9),
+            (2.31, 12),
+            (1.98, 11),
+            (1.67, 10),
+            (1.36, 9),
             # Row 4
-            (0.94, 13),
-            (0.66, 14),
-            (0.38, 15),
-            (0.1, 16),
+            (1.07, 13),
+            (0.76, 14),
+            (0.45, 15),
+            (0.06, 16),
         ]
 
-        # Stores the voltage values for each row
         self.rowList = [
-            (4.9, 1),
-            (3.0, 2),
-            (1.75, 3),
-            (0.4, 4),
+            (5.1, 1),
+            (3.6, 2),
+            (2.2, 3),
+            (0.7, 4),
         ]
 
-        # Stores the voltage values for each column
         self.colList = [
-            (4.8, 1),
-            (4.3, 2),
-            (3.7, 3),
-            (3.2, 4),
+            (4.4, 1),
+            (2.9, 2),
+            (1.5, 3),
+            (0.2, 4),
         ]
-
-        self.thresholds = {"tile": 0.15, "row": 0.5, "col": 0.3}

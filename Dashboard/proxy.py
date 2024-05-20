@@ -4,56 +4,44 @@ from config import Config
 
 
 class Proxy:
-    def __init__(self, bus, address):
+    def __init__(self, tile, row, col, state, pluggedIn, ID):
         """
         Initialize the Proxy object.
 
         Args:
-            bus: The bus object used for I2C communication.
-            address: The address of the proxy device.
+            tile: The raw value read from the ADC for the tile.
+            row: The raw value read from the ADC for the row.
+            col: The raw value read from the ADC for the column.
+            state: The state of the proxy
+            pluggedIn: A boolean indicating if the proxy is plugged in or not.
         """
-        self.bus = bus
-        self.address = address
-        self.is_plugged_in = False
         self.position = None
-        self.state = None
+        self.tileValue = tile
+        self.rowValue = row
+        self.colValue = col
+        self.state = state
+        self.is_plugged_in = pluggedIn
+        self.ID = ID
         self.config = Config()
 
-    def check_connection(self):
+    def update(self, tile, row, col, state, pluggedIn):
         """
-        Check if the proxy is connected to the dashboard.
-        """
-        attempts = 3
-        for _ in range(attempts):
-            try:
-                self.bus.read_i2c_block_data(self.address, 0x00, 8)
-                self.is_plugged_in = True
-                print("Proxy is connected.")
-                return  # Exit if successful
-            except IOError:
-                time.sleep(1)  # Wait a second and try again
-        self.is_plugged_in = False  # Set to false if all attempts fail
+        Update the values of the proxy.
 
-    def read_proxy_data(self):
+        Args:
+            tile: The raw value read from the ADC for the tile.
+            row: The raw value read from the ADC for the row.
+            col: The raw value read from the ADC for the column.
+            state: The state of the proxy
+            pluggedIn: A boolean indicating if the proxy is plugged in or not.
         """
-        Read data from the proxy at the specified device address.
+        self.tileValue = tile
+        self.rowValue = row
+        self.colValue = col
+        self.state = state
+        self.is_plugged_in = pluggedIn
 
-        Returns:
-            The data read from the proxy as a triple of tile, row, and column values.
-            Returns None if the proxy is not plugged in.
-        """
-        if not self.is_plugged_in:
-            return None
-        try:
-            data = self.bus.read_i2c_block_data(self.address, 0x00, 8)
-            tileInt = (data[0] << 8) | data[1]
-            rowInt = (data[2] << 8) | data[3]
-            colInt = (data[4] << 8) | data[5]
-
-            return tileInt, rowInt, colInt
-        except IOError as e:
-            print(f"Read Error: {e}")
-            return None
+        self.set_position()
 
     def calculate_voltage(self, raw_value, type):
         """
@@ -73,38 +61,40 @@ class Proxy:
             return adc * 1.51
         elif type == "col":
             return adc * 1.51
-        return adc
+        return None
 
     def convert_value(self, raw_value, type):
         """
-        Match the correct position based on the voltage.
+        Match the correct position based on the closest voltage match.
 
         Args:
             raw_value: The raw value read from the ADC.
-            type: The type of voltage divider ("tile", "row", or "col").
+            type: The type of pin ("tile", "row", or "col").
 
         Returns:
             The matched position number.
-            Returns 0 if no range matches.
+            Returns 0 if no predefined voltages are available.
         """
         voltage = self.calculate_voltage(raw_value, type)
         data_list = getattr(self.config, f"{type}List")
-        threshold = self.config.thresholds[type]
 
-        for voltage_level, number in data_list:
-            if voltage_level - threshold <= voltage <= voltage_level + threshold:
-                return number
-        return 0
+        if not data_list:
+            return 0
+
+        # Find the closest voltage match
+        closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+        return closest_match[1]
+
 
     def apply_adjustments(self, tile, row, col):
         """
-        Apply adjustments to the row and column values based on the tile number.
+        Apply adjustments to the row and column numbers based on the tile number.
         Converts the relative position on the board to the absolute position.
 
         Args:
-            tile: The tile number.
-            row: The original row value.
-            col: The original column value.
+            tile: The (absolute) tile number.
+            row: The relative row number.
+            col: The relative column number.
 
         Returns:
             The adjusted row and column values as an absolute position of the dashboard
@@ -116,7 +106,7 @@ class Proxy:
             return adjusted_row, adjusted_col
         return row, col
 
-    def get_position(self):
+    def set_position(self):
         """
         Get the position of the proxy.
 
@@ -124,39 +114,14 @@ class Proxy:
             The position of the proxy as a tuple of row and column values.
             Returns None if the proxy is not connected or if there are too many read failures.
         """
-        self.check_connection()
+        if self.is_plugged_in:
+            tile = self.convert_value(self.tileValue, "tile")
+            row = self.convert_value(self.rowValue, "row")
+            col = self.convert_value(self.colValue, "col")
 
-        last_values = None
-        consistent_count = 0
-        failure_count = 0
+            if tile > 0:
+                self.position = self.apply_adjustments(tile, row, col)
+                return
 
-        while consistent_count < 3:
-            if failure_count >= 5:
-                print("Exceeded maximum number of read failures.")
-                return None
-
-            data = self.read_proxy_data()
-            if data is None:
-                print("Failed to receive data, attempting again...")
-                failure_count += 1
-                time.sleep(1)
-                continue
-
-            tile_value, row_value, col_value = data
-            tile = self.convert_value(tile_value, "tile")
-            row = self.convert_value(row_value, "row")
-            col = self.convert_value(col_value, "col")
-            values = (tile, row, col)
-
-            if last_values == values:
-                consistent_count += 1
-            else:
-                last_values = values
-                consistent_count = 1
-
-            time.sleep(1)
-
-        if tile > 0:
-            return self.apply_adjustments(tile, row, col)
-
-        return None
+            self.position = row, col
+            return

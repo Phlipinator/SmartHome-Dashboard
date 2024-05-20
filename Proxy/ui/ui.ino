@@ -52,6 +52,7 @@ void incrementalEncoder() {
   int sum = (lastEncoded << 2) | encoded;  // Adding it to the previous encoded value
 
   if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011 || sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) {
+    encoderPos = modeIndex;
     if (processInput) {
       // Determine direction and increment or decrement encoderPos accordingly
       if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011)
@@ -92,6 +93,12 @@ void setup_wifi() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
+  // Set the Wi-Fi mode
+  WiFi.mode(WIFI_STA);
+
+  // Set the minimum security level
+  WiFi.setMinSecurity(WIFI_AUTH_WPA_PSK);
+
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -106,20 +113,43 @@ void setup_wifi() {
 }
 
 void callback(char* topic, byte* message, unsigned int length) {
-  Serial.print("Message arrived on topic: ");
-  Serial.print(topic);
-  Serial.print(". Message: ");
+  // Convert the incoming message to a string
+  String msg = "";
   for (unsigned int i = 0; i < length; i++) {
-    Serial.print((char)message[i]);
+    msg += (char)message[i];
   }
-  Serial.println();
+
+  // Check if the message is a single digit number (0, 1, or 2)
+  if (msg.length() == 1 && isDigit(msg.charAt(0))) {
+    int value = msg.toInt();
+    
+    // Perform actions based on the value
+    switch (value) {
+      case 0:
+        // Network
+        modeIndex = 0;
+        break;
+      case 1:
+        // Third Party
+        modeIndex = 1;
+        break;
+      case 2:
+        // Online
+        modeIndex = 2;
+        break;
+      default:
+        Serial.print("Unsupported message");
+        break;
+    }
+    lv_img_set_angle(ui_Text, angles[modeIndex]);
+  }
 }
 
 void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Create a unique client ID
-    String clientId = "ESP32Client-" + String((uint32_t)ESP.getEfuseMac(), HEX);
+    String clientId = "Dashboard_Proxy_" + String(ID);
     // Attempt to connect
     if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
       Serial.println("connected");
@@ -127,12 +157,11 @@ void reconnect() {
       // String payload = String(ID);
       // client.publish(topic.c_str(), payload.c_str());
       // Subscribe to your topics here
-      // client.subscribe("yourSubscriptionTopic");
+      client.subscribe(subTopic.c_str());
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying, non-blocking wait could be implemented here
       delay(5000);
     }
   }
@@ -210,7 +239,8 @@ void loop() {
   // Publish if there's a mode change
   if (currentModeIndex != lastModeIndex) {
     String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + "," + String(currentModeIndex);
-    client.publish(topic.c_str(), payload.c_str());
+    client.publish(pubTopic.c_str(), payload.c_str());
+    Serial.println("Published state change");
 
     lastModeIndex = currentModeIndex;
   }
