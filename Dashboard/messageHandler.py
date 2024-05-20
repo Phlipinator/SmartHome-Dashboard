@@ -89,21 +89,25 @@ class MessageHandler:
 
             if(proxy_row != self.proxy_data[proxy.ID][0] or proxy_col != self.proxy_data[proxy.ID][1]):
                 self.handle_animation(proxy.ID, "coordinates")
-                # TODO update proxy data
+                self.update_proxy_data(proxy)
 
             elif(proxy.state != self.proxy_data[proxy.ID][2]):
                 self.handle_animation((proxy.ID, 0), "path")
-                # TODO update proxy data
+                self.update_proxy_data(proxy)
             else:
                 return
         elif changeType == "is":
             if(proxy.state != self.proxy_data[proxy.ID][2]):
                 self.handle_animation((0, proxy.ID), "path")
-                # TODO update proxy data
+                self.update_proxy_data(proxy)
             else:
                 return
         else:
             print("Invalid change type.")
+
+    def update_proxy_data(self, proxy):
+        proxy_row, proxy_col = proxy.position
+        self.proxy_data[proxy.ID] = (proxy_row, proxy_col, proxy.state)
 
     def handle_animation(self, payload, animationType):
         if animationType == "path":
