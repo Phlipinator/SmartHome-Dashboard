@@ -115,9 +115,9 @@ class MessageHandler:
             
             if(data[3] == "x"):
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, False)
-                return
-            
-            proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
+            else:
+                proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
+                
             self.compare_proxy_data(proxy, "set")
 
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
