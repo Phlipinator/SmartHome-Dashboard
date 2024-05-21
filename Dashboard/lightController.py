@@ -39,7 +39,7 @@ class LightController:
         while True:
             message = self.message_queue.get()
             self.serial_port.write(message.encode())
-            self.logger.info(f"Message sent: {message}")
+            self.logger.info(f"(send_messages) Message sent: {message}")
             time.sleep(self.delay)
 
     def send_coordinates(self, x, y):
@@ -53,7 +53,7 @@ class LightController:
         """
         message = f"{x},{y}\n"
         self.message_queue.put(message)
-        self.logger.info("Coordinates Message added to queue.")
+        self.logger.info("(send_coordinates) Coordinates Message added to queue.")
 
     def send_path(self, x1, y1, x2, y2):
         """
@@ -68,4 +68,4 @@ class LightController:
         """
         message = f"{x1},{y1},{x2},{y2}\n"
         self.message_queue.put(message)
-        self.logger.info("Path Message added to queue.")
+        self.logger.info("(send_path) Path Message added to queue.")
