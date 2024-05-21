@@ -112,6 +112,7 @@ class MessageHandler:
                 return
             
             proxy.update(int(data[0]), int(data[1]), int(data[2]), int(data[3]), True)
+            proxy.isConnected = True
             self.compare_proxy_data(proxy, "set")
 
             print(f"Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
@@ -122,6 +123,8 @@ class MessageHandler:
             except ValueError:
                 print("Invalid payload format for 'is' message.")
                 return
+            
+            proxy.isConnected = True
             self.compare_proxy_data(proxy, "is")
             print(f"Updated Proxy {proxy_ID} State {payload}.")
         else:
@@ -195,6 +198,10 @@ class MessageHandler:
                 print("Proxy positions not set")
                 return
             
+            if(not start_proxy.is_plugged_in or not end_proxy.is_plugged_in):
+                print("Proxies not connected")
+                return
+            
             # Extracting x and y coordinates from the position tuple
             start_x, start_y = start_proxy.position
             end_x, end_y = end_proxy.position
@@ -215,6 +222,10 @@ class MessageHandler:
             
             if (proxy.position is None):
                 print("Proxy position not set.")
+                return
+            
+            if(not proxy.is_plugged_in):
+                print("Proxies not connected")
                 return
             
             print("Sending coordinates for Proxy {proxy.ID}.")
