@@ -25,7 +25,7 @@ class Logger:
         # Create the log file if it doesn't exist
         if not os.path.exists(log_file):
             with open(log_file, 'w') as file:
-                file.write("Log File Created\n")
+                print(f"Log file created: {log_file}")
     
     def write_log(self, level, message):
         """
