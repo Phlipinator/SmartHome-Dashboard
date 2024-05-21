@@ -24,7 +24,7 @@ class Proxy:
         self.ID = ID
         self.config = Config()
 
-    def update(self, tile, row, col, state, pluggedIn):
+    def update(self, tile, row, col, plugged_in, state = False):
         """
         Update the values of the proxy.
 
@@ -38,8 +38,10 @@ class Proxy:
         self.tileValue = tile
         self.rowValue = row
         self.colValue = col
-        self.state = state
-        self.is_plugged_in = pluggedIn
+        self.is_plugged_in = plugged_in
+
+        if state is not False:
+            self.state = state
 
         self.set_position()
 

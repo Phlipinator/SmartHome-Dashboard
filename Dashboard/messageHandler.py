@@ -113,7 +113,10 @@ class MessageHandler:
                 self.logger.warning(f"(handle_message) Invalid payload '{payload}' format for 'set' message.")
                 return
             
-            proxy.update(int(data[0]), int(data[1]), int(data[2]), int(data[3]), True)
+            if(data[3] == "x"):
+                proxy.update(int(data[0]), int(data[1]), int(data[2]), True, False)
+            
+            proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
             self.compare_proxy_data(proxy, "set")
 
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
