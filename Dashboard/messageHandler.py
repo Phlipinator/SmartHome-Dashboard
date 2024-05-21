@@ -174,7 +174,7 @@ class MessageHandler:
 
         """
         if(proxy.position is None):
-            self.proxy_data[proxy.ID][2] = proxy.state
+            self.proxy_data[proxy.ID] = (None, None, proxy.state)
             return
 
         proxy_row, proxy_col = proxy.position
