@@ -4,9 +4,12 @@ import time
 
 import serial
 from lightController import LightController
+from logger import Logger
 from messageHandler import MessageHandler
 
 from proxy import Proxy
+
+logger = Logger("test.log")
 
 # Initialize the LightController
 lightController = LightController('/dev/ttyUSB0', 9600)
@@ -21,6 +24,8 @@ messageHandler = MessageHandler('test.mosquitto.org', [Proxy0, Proxy1, Proxy2], 
 
 # Start the MessageHandler
 messageHandler.start()
+
+logger.info("started.")
 
 # Keep the main thread running
 try:
