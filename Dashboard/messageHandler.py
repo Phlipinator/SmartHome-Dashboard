@@ -10,6 +10,7 @@ class MessageHandler:
         proxy_list (list): The list of used proxy objects.
         light_controller (object): The objects that controls the light animations.
         animationTopic (str): The general topic for animation messages from the hub.
+        logger (Logger): The logger object for logging messages.
 
     Attributes:
         broker_address (str): The address of the MQTT broker.
@@ -21,11 +22,12 @@ class MessageHandler:
 
     """
 
-    def __init__(self, broker_address, proxy_list, light_controller, animationTopic):
+    def __init__(self, broker_address, proxy_list, light_controller, animationTopic, logger):
         self.broker_address = broker_address
         self.proxy_list = proxy_list
         self.light_controller = light_controller
         self.animationTopic = animationTopic
+        self.logger = logger
 
         self.proxy_data = [
             (0, 0, 0),
@@ -51,18 +53,18 @@ class MessageHandler:
             rc (int): The connection result code.
 
         """
-        print("Connected with result code " + str(rc))
+        self.logger.info(f"(on_connect) Connected with result code {rc}")
         # Subscribe to set_state and is_state topics for each proxy
         for proxy in self.proxy_list:
             set_state_topic = f"set_state_proxy_{proxy.ID}"
             is_state_topic = f"is_state_proxy_{proxy.ID}"
             client.subscribe(set_state_topic)
             client.subscribe(is_state_topic)
-            print(f"Subscribed to {set_state_topic} and {is_state_topic}")
+            self.logger.info(f"(on_connect) Subscribed to {set_state_topic} and {is_state_topic}")
 
             # Subscribe to general animation topic for the hub
         client.subscribe(self.animationTopic)
-        print(f"Subscribed to {self.animationTopic}")
+        self.logger.info(f"(on_connect) Subscribed to {self.animationTopic}")
 
     def on_message(self, client, userdata, msg):
         """
@@ -76,7 +78,7 @@ class MessageHandler:
         """
         topic = msg.topic
         payload = msg.payload.decode()
-        print(f"Message received on topic {topic}: {payload}")
+        self.logger.info(f"(on_message) Message received on topic {topic}: {payload}")
 
         if(topic == self.animationTopic):
            self.handle_animation(payload, "path")
@@ -100,7 +102,7 @@ class MessageHandler:
         proxy = next((p for p in self.proxy_list if p.ID == proxy_ID), None)
         
         if proxy is None:
-            print(f"Proxy with ID {proxy_ID} not found.")
+            self.logger.warning(f"(handle_message) Proxy with ID {proxy_ID} not found.")
             return
         
         # Process based on topic type
@@ -108,29 +110,28 @@ class MessageHandler:
             data = payload.split(",")
 
             if len(data) != 4:
-                print("Invalid payload format for 'set' message.")
+                self.logger.warning(f"(handle_message) Invalid payload '{payload}' format for 'set' message.")
                 return
             
             proxy.update(int(data[0]), int(data[1]), int(data[2]), int(data[3]), True)
-            proxy.isConnected = True
             self.compare_proxy_data(proxy, "set")
 
-            print(f"Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
+            self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
         elif parts[0] == "is":
             try:
                 proxy.state = int(payload)
             except ValueError:
-                print("Invalid payload format for 'is' message.")
+                self.logger.warning(f"(handle_message) Invalid payload '{payload}' format for 'is' message.")
                 return
             
             proxy.isConnected = True
             self.compare_proxy_data(proxy, "is")
-            print(f"Updated Proxy {proxy_ID} State {payload}.")
+            self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with State {payload}.")
         else:
-            print("Invalid topic.")
+            self.logger.warning(f"(handle_message) Invalid topic '{topic}'.")
 
-    def compare_proxy_data(self, proxy, changeType):
+    def compare_proxy_data(self, proxy, change_type):
         """
         Compares the data of the proxy with the stored proxy data and performs actions based on the change type.
 
@@ -139,7 +140,7 @@ class MessageHandler:
             changeType (str): The type of change (either "set" or "is").
 
         """
-        if changeType == "set":
+        if change_type == "set":
             # Extracting x and y coordinates from the position tuple
             proxy_row, proxy_col = proxy.position
 
@@ -152,14 +153,14 @@ class MessageHandler:
                 self.update_proxy_data(proxy)
             else:
                 return
-        elif changeType == "is":
+        elif change_type == "is":
             if(proxy.state != self.proxy_data[proxy.ID][2]):
                 self.handle_animation(f"0, {proxy.ID}", "path")
                 self.update_proxy_data(proxy)
             else:
                 return
         else:
-            print("Invalid change type.")
+            self.logger.warning(f"(compare_proxy_data) Invalid change type '{change_type}'.")
 
     def update_proxy_data(self, proxy):
         """
@@ -172,7 +173,7 @@ class MessageHandler:
         proxy_row, proxy_col = proxy.position
         self.proxy_data[proxy.ID] = (proxy_row, proxy_col, proxy.state)
 
-    def handle_animation(self, payload, animationType):
+    def handle_animation(self, payload, animation_type):
         """
         Handles the animation based on the payload and animation type.
 
@@ -181,58 +182,58 @@ class MessageHandler:
             animationType (str): The type of animation (either "path" or "coordinates").
 
         """
-        if animationType == "path":
+        if animation_type == "path":
             data = payload.split(",")
             if len(data) != 2:
-                print("Invalid payload format for path animation.")
+                self.logger.warning(f"(handle_animation) Invalid payload '{payload}' format for path animation.")
                 return
 
             start_proxy = next((p for p in self.proxy_list if p.ID == int(data[0])), None)
             end_proxy = next((p for p in self.proxy_list if p.ID == int(data[1])), None)
 
             if start_proxy is None or end_proxy is None:
-                print("Proxy IDs not connected")
+                self.logger.warning(f"(handle_animation) Proxy IDs '{start_proxy.ID}' or '{end_proxy.ID}' not connected.")
                 return
             
             if(start_proxy.position is None or end_proxy.position is None):
-                print("Proxy positions not set")
+                self.logger.warning(f"(handle_animation) Proxy positions for Proxy IDs '{start_proxy.ID}' or '{end_proxy.ID}' not set.")
                 return
             
             if(not start_proxy.is_plugged_in or not end_proxy.is_plugged_in):
-                print("Proxies not connected")
+                self.logger.warning(f"(handle_animation) Proxies '{start_proxy.ID}' or '{end_proxy.ID}' not connected.")
                 return
             
             # Extracting x and y coordinates from the position tuple
             start_x, start_y = start_proxy.position
             end_x, end_y = end_proxy.position
 
-            print(f"Sending path from Proxy {start_proxy.ID} to Proxy {end_proxy.ID}")
+            self.logger.info(f"(handle_animation) Sending path from Proxy {start_proxy.ID} to Proxy {end_proxy.ID}.")
             self.light_controller.send_path(start_x, start_y, end_x, end_y)
 
-        elif animationType == "coordinates":
+        elif animation_type == "coordinates":
             if len(str(payload)) != 1:
-                print("Invalid payload format for coordinates animation.")
+                self.logger.warning(f"(handle_animation) Invalid payload '{payload}' format for coordinates animation.")
                 return
             
             proxy = next((p for p in self.proxy_list if p.ID == int(payload)), None)
 
             if proxy is None:
-                print("Proxy ID not found.")
+                self.logger.warning(f"(handle_animation) Proxy with ID {proxy.ID} not found.")
                 return
             
             if (proxy.position is None):
-                print("Proxy position not set.")
+                self.logger.warning(f"(handle_animation) Position for Proxy with ID {proxy.ID} not set.")
                 return
             
             if(not proxy.is_plugged_in):
-                print("Proxies not connected")
+                self.logger.warning(f"(handle_animation) Proxy with ID {proxy.ID} not connected.")
                 return
             
-            print("Sending coordinates for Proxy {proxy.ID}.")
+            self.logger.info(f"(handle_animation) Sending coordinates for Proxy {proxy.ID}.")
             self.light_controller.send_coordinates(proxy.position[0], proxy.position[1])
 
         else:
-            print("Invalid animation type.")
+            self.logger.warning(f"(handle_animation) Invalid animation type '{animation_type}'.")
 
     def start(self):
         """
@@ -241,6 +242,7 @@ class MessageHandler:
         """
         self.client.connect(self.broker_address)
         self.client.loop_start()
+        self.logger.info("Message Handler started.")
 
     def stop(self):
         """
@@ -249,3 +251,4 @@ class MessageHandler:
         """
         self.client.loop_stop()
         self.client.disconnect()
+        self.logger.info("Message Handler stopped.")

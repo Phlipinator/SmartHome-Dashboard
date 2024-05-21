@@ -52,7 +52,8 @@ class Logger:
         Returns:
             None
         """
-        self.write_log("INFO", message)
+        self.write_log("[INFO]", message)
+        print(f"[INFO] {message}")
     
     def warning(self, message):
         """
@@ -64,7 +65,8 @@ class Logger:
         Returns:
             None
         """
-        self.write_log("WARNING", message)
+        self.write_log("[WARNING]", message)
+        print(f"[WARNING] {message}")
     
     def error(self, message):
         """
@@ -76,4 +78,5 @@ class Logger:
         Returns:
             None
         """
-        self.write_log("ERROR", message)
+        self.write_log("[ERROR]", message)
+        print(f"[ERROR] {message}")

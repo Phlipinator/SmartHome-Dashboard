@@ -12,7 +12,7 @@ from proxy import Proxy
 logger = Logger("test.log")
 
 # Initialize the LightController
-lightController = LightController('/dev/ttyUSB0', 9600)
+lightController = LightController('/dev/ttyUSB0', 9600, logger)
 
 # Proxy setup
 Proxy0 = Proxy(0, 0, 0, 0, False, 0)
@@ -20,12 +20,10 @@ Proxy1 = Proxy(0, 0, 0, 0, False, 1)
 Proxy2 = Proxy(0, 0, 0, 0, False, 2)
 
 # Initialize the MessageHandler
-messageHandler = MessageHandler('test.mosquitto.org', [Proxy0, Proxy1, Proxy2], lightController, "dashboardAnimations")
+messageHandler = MessageHandler('test.mosquitto.org', [Proxy0, Proxy1, Proxy2], lightController, "dashboardAnimations", logger)
 
 # Start the MessageHandler
 messageHandler.start()
-
-logger.info("started.")
 
 # Keep the main thread running
 try:
