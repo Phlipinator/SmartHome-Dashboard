@@ -243,7 +243,8 @@ void loop() {
   // Publish the initial State once when powered on
   static bool initialPublish = true;
   if(initialPublish && client.connected()){
-    publishMessage();
+    String payload = String(tileVoltage) + "," + String(rowVoltage) + "," + String(colVoltage) + ",x";
+    client.publish(pubTopic.c_str(), payload.c_str());
     initialPublish = false;
   }
 
