@@ -173,6 +173,10 @@ class MessageHandler:
             proxy (object): The proxy object.
 
         """
+        if(proxy.position is None):
+            self.proxy_data[proxy.ID][2] = proxy.state
+            return
+
         proxy_row, proxy_col = proxy.position
         self.proxy_data[proxy.ID] = (proxy_row, proxy_col, proxy.state)
 
