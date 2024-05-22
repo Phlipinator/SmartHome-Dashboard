@@ -18,9 +18,10 @@ lightController = LightController('/dev/ttyUSB0', 9600, logger)
 Proxy0 = Proxy(0, 0, 0, 0, False, 0)
 Proxy1 = Proxy(0, 0, 0, 0, False, 1)
 Proxy2 = Proxy(0, 0, 0, 0, False, 2)
+Proxy3 = Proxy(0, 0, 0, 0, False, 3)
 
 # Initialize the MessageHandler
-messageHandler = MessageHandler('test.mosquitto.org', [Proxy0, Proxy1, Proxy2], lightController, "dashboardAnimations", logger)
+messageHandler = MessageHandler('test.mosquitto.org', [Proxy0, Proxy1, Proxy2, Proxy3], lightController, "dashboardAnimations", logger)
 
 # Start the MessageHandler
 messageHandler.start()
