@@ -19,7 +19,7 @@ volatile int encoderPos = 0;
 int lastEncoded = 0;
 
 // Predefined angles that represent the different modes
-const int32_t angles[] = { 0, 1190, -1280 };  
+const int32_t angles[] = { 0, 1190, -1190 };  
 int modeIndex = 0;
 
 static lv_disp_draw_buf_t draw_buf;
