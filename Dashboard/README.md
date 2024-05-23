@@ -1,6 +1,6 @@
 # Instructions
 ## Code
-To start the program, just execute the *main.py* file.
+To start the program, just execute the *main.py* -file.
 By default there are 4 Proxies, including the hub, to change that you need to create a new Proxy object, with unique ID and pass it on to the message handler.
 
 The rest of the code is documented well and should be self-explanatory.

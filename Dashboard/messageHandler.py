@@ -29,14 +29,8 @@ class MessageHandler:
         self.animationTopic = animationTopic
         self.logger = logger
 
-        # If more then 5 Proxies are used, the proxy_data list needs to be extended
-        self.proxy_data = [
-            (0, 0, 0),
-            (0, 0, 0),
-            (0, 0, 0),
-            (0, 0, 0),
-            (0, 0, 0),
-        ]
+        # Initialize proxy_data with one (0, 0, 0) tuple for each element in proxy_list
+        self.proxy_data = [(0, 0, 0) for _ in proxy_list]
 
         self.client = mqtt.Client()
 
