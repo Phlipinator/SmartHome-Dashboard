@@ -29,6 +29,7 @@ class MessageHandler:
         self.animationTopic = animationTopic
         self.logger = logger
 
+        # If more then 5 Proxies are used, the proxy_data list needs to be extended
         self.proxy_data = [
             (0, 0, 0),
             (0, 0, 0),
