@@ -110,6 +110,7 @@ class MessageHandler:
             
             if(data[3] == "x"):
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, False)
+                # Set override back to False, as the state can only be 'x' if the Proxy get freshly plugged in
                 proxy.override = False
             else:
                 # If the override flag is set, do not update the position
