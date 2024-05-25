@@ -110,6 +110,7 @@ class MessageHandler:
             
             if(data[3] == "x"):
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, False)
+                proxy.override = False
             else:
                 if(proxy.override):
                     return
