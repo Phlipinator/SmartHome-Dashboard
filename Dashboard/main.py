@@ -31,9 +31,15 @@ try:
     while True:
         message = input()
         payload = message.split(",")
-        proxy = proxy_list[int(payload[0])]
-        proxy_position = int(payload[1]), int(payload[2])
-        messageHandler.handle_manual_override(proxy, proxy_position)
+        if(len(payload) == 3):
+            proxy = proxy_list[int(payload[0])]
+            proxy_position = int(payload[1]), int(payload[2])
+            messageHandler.handle_manual_override(proxy, proxy_position)
+        elif(len(payload) == 1):
+            proxy = proxy_list[int(payload[0])]
+            print(f"Proxy {proxy.ID} is at position {proxy.position}")
+        else:
+            print("Invalid input, messages must be in format 'ID,x,y' to override the position or 'ID' to get the position.")
 except KeyboardInterrupt:
     # Graceful shutdown on Ctrl+C
     messageHandler.stop()

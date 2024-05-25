@@ -243,9 +243,18 @@ class MessageHandler:
             self.logger.warning(f"(handle_animation) Invalid animation type '{animation_type}'.")
 
     def handle_manual_override(self, proxy, proxy_position):
+        """
+        Handles manual override of a proxy.
+
+        Args:
+            proxy (Proxy): The proxy object to override.
+            proxy_position (str): The new position of the proxy.
+
+        """
         proxy.override = True
         proxy.position = proxy_position
         self.handle_animation(proxy.ID, "coordinates")
+        self.logger.info(f"(handle_manual_override) Manual override for Proxy {proxy.ID} with position {proxy_position}.")
 
     def start(self):
         """
