@@ -255,3 +255,4 @@ class MessageHandler:
         self.client.loop_stop()
         self.client.disconnect()
         self.logger.info("Message Handler stopped.")
+        

@@ -4,13 +4,13 @@ from config import Config
 
 
 class Proxy:
-    def __init__(self, ID):
-        """
-        Initialize the Proxy object.
+    """
+        A class that stores the relevant data for a Proxy device.
 
         Args:
             ID: The unique identifier for the proxy
         """
+    def __init__(self, ID):
         self.position = None
         self.tile_value = None
         self.row_value = None

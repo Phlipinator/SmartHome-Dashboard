@@ -69,3 +69,4 @@ class LightController:
         message = f"{x1},{y1},{x2},{y2}\n"
         self.message_queue.put(message)
         self.logger.info("(send_path) Path Message added to queue.")
+        
