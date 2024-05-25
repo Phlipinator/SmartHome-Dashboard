@@ -32,7 +32,7 @@ try:
         message = input()
         payload = message.split(",")
         proxy = proxy_list[payload[0]]
-        proxy_position = payload[1], payload[2]
+        proxy_position = int(payload[1]), int(payload[2])
         messageHandler.handle_manual_override(proxy, proxy_position)
 except KeyboardInterrupt:
     # Graceful shutdown on Ctrl+C
