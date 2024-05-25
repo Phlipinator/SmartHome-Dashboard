@@ -4,7 +4,7 @@ from config import Config
 
 
 class Proxy:
-    def __init__(self, tile, row, col, state, pluggedIn, ID):
+    def __init__(self, ID):
         """
         Initialize the Proxy object.
 
@@ -16,11 +16,11 @@ class Proxy:
             pluggedIn: A boolean indicating if the proxy is plugged in or not.
         """
         self.position = None
-        self.tileValue = tile
-        self.rowValue = row
-        self.colValue = col
-        self.state = state
-        self.is_plugged_in = pluggedIn
+        self.tileValue = None
+        self.rowValue = None
+        self.colValue = None
+        self.state = None
+        self.is_plugged_in = None
         self.ID = ID
         self.config = Config()
 
