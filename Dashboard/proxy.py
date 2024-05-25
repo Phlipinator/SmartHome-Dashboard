@@ -9,16 +9,12 @@ class Proxy:
         Initialize the Proxy object.
 
         Args:
-            tile: The raw value read from the ADC for the tile.
-            row: The raw value read from the ADC for the row.
-            col: The raw value read from the ADC for the column.
-            state: The state of the proxy
-            pluggedIn: A boolean indicating if the proxy is plugged in or not.
+            ID: The unique identifier for the proxy
         """
         self.position = None
-        self.tileValue = None
-        self.rowValue = None
-        self.colValue = None
+        self.tile_value = None
+        self.row_value = None
+        self.col_value = None
         self.state = None
         self.is_plugged_in = None
         self.ID = ID
@@ -35,9 +31,9 @@ class Proxy:
             state: The state of the proxy
             pluggedIn: A boolean indicating if the proxy is plugged in or not.
         """
-        self.tileValue = tile
-        self.rowValue = row
-        self.colValue = col
+        self.tile_value = tile
+        self.row_value = row
+        self.col_value = col
         self.is_plugged_in = plugged_in
 
         if state is not False:
@@ -117,9 +113,9 @@ class Proxy:
             Returns None if the proxy is not connected or if there are too many read failures.
         """
         if self.is_plugged_in:
-            tile = self.convert_value(self.tileValue, "tile")
-            row = self.convert_value(self.rowValue, "row")
-            col = self.convert_value(self.colValue, "col")
+            tile = self.convert_value(self.tile_value, "tile")
+            row = self.convert_value(self.row_value, "row")
+            col = self.convert_value(self.col_value, "col")
 
             if tile > 0:
                 self.position = self.apply_adjustments(tile, row, col)
