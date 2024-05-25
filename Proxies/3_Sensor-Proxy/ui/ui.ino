@@ -17,6 +17,7 @@ extern lv_obj_t * ui_Text;
 
 volatile int encoderPos = 0;
 int lastEncoded = 0;
+int lastEncoderPos = encoderPos;
 
 // Predefined angles that represent the different modes
 const int32_t angles[] = { 0, 1190, -1190 };  
@@ -41,8 +42,6 @@ void my_disp_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color
 }
 
 void incrementalEncoder() {
-  // Keep track of the last encoder position to detect changes
-  static int lastEncoderPos = encoderPos;
   // Flag to decide whether to process this input or not
   static bool processInput = true;         
 
@@ -145,6 +144,7 @@ void callback(char* topic, byte* message, unsigned int length) {
     }
     lv_img_set_angle(ui_Text, angles[modeIndex]);
     encoderPos = modeIndex;
+    lastEncoderPos = encoderPos;
   }
 }
 

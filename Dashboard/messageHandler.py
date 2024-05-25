@@ -51,11 +51,11 @@ class MessageHandler:
         self.logger.info(f"(on_connect) Connected with result code {rc}")
         # Subscribe to set_state and is_state topics for each proxy
         for proxy in self.proxy_list:
-            set_state_topic = f"set_state_proxy_{proxy.ID}"
-            is_state_topic = f"is_state_proxy_{proxy.ID}"
-            client.subscribe(set_state_topic)
-            client.subscribe(is_state_topic)
-            self.logger.info(f"(on_connect) Subscribed to {set_state_topic} and {is_state_topic}")
+            proxy_state_update_topic = f"proxy_state_update_proxy_{proxy.ID}"
+            hub_state_update_topic = f"hub_state_update_proxy_{proxy.ID}"
+            client.subscribe(proxy_state_update_topic)
+            client.subscribe(hub_state_update_topic)
+            self.logger.info(f"(on_connect) Subscribed to {proxy_state_update_topic} and {hub_state_update_topic}")
 
             # Subscribe to general animation topic for the hub
         client.subscribe(self.animationTopic)
@@ -101,7 +101,7 @@ class MessageHandler:
             return
         
         # Process based on topic type
-        if parts[0] == "set":
+        if parts[0] == "proxy":
             data = payload.split(",")
 
             if len(data) != 4:
@@ -120,7 +120,7 @@ class MessageHandler:
                 
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
                 
-            self.compare_proxy_data(proxy, "set")
+            self.compare_proxy_data(proxy, "hub")
 
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
