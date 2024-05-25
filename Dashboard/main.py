@@ -28,7 +28,9 @@ messageHandler.start()
 # Keep the main thread running
 try:
     while True:
-        time.sleep(1)
+        message = input("Input manual position override in format 'ID,row,col' ")
+        payload = message.split(",")
+        print(payload)
 except KeyboardInterrupt:
     # Graceful shutdown on Ctrl+C
     messageHandler.stop()

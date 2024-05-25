@@ -111,6 +111,9 @@ class MessageHandler:
             if(data[3] == "x"):
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, False)
             else:
+                if(proxy.override):
+                    return
+                
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
                 
             self.compare_proxy_data(proxy, "set")
@@ -255,4 +258,3 @@ class MessageHandler:
         self.client.loop_stop()
         self.client.disconnect()
         self.logger.info("Message Handler stopped.")
-        
