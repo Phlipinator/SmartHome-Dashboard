@@ -120,11 +120,11 @@ class MessageHandler:
                 
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
                 
-            self.compare_proxy_data(proxy, "hub")
+            self.compare_proxy_data(proxy, "proxy")
 
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
-        elif parts[0] == "is":
+        elif parts[0] == "hub":
             try:
                 proxy.state = int(payload)
             except ValueError:
@@ -132,7 +132,7 @@ class MessageHandler:
                 return
             
             proxy.isConnected = True
-            self.compare_proxy_data(proxy, "is")
+            self.compare_proxy_data(proxy, "hub")
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with State {payload}.")
         else:
             self.logger.warning(f"(handle_message) Invalid topic '{topic}'.")
@@ -143,10 +143,10 @@ class MessageHandler:
 
         Args:
             proxy (object): The proxy object.
-            changeType (str): The type of change (either "set" or "is").
+            changeType (str): The type of change (either "proxy" or "hub").
 
         """
-        if change_type == "set":
+        if change_type == "proxy":
             # Extracting x and y coordinates from the position tuple
             proxy_row, proxy_col = proxy.position
 
@@ -159,7 +159,7 @@ class MessageHandler:
                 self.update_proxy_data(proxy)
             else:
                 return
-        elif change_type == "is":
+        elif change_type == "hub":
             if(proxy.state != self.proxy_data[proxy.ID][2]):
                 self.handle_animation(f"0, {proxy.ID}", "path")
                 self.update_proxy_data(proxy)
