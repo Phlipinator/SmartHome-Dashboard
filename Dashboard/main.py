@@ -37,7 +37,7 @@ try:
             messageHandler.handle_manual_override(proxy, proxy_position)
         elif(len(payload) == 1):
             proxy = proxy_list[int(payload[0])]
-            print(f"Proxy {proxy.ID} is at position {proxy.position}")
+            print(f"Proxy {proxy.ID} is at position {proxy.position} with state {proxy.state}.")
         else:
             print("Invalid input, messages must be in format 'ID,x,y' to override the position or 'ID' to get the position.")
 except KeyboardInterrupt:

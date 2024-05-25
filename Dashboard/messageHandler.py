@@ -112,7 +112,9 @@ class MessageHandler:
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, False)
                 proxy.override = False
             else:
+                # If the override flag is set, do not update the position
                 if(proxy.override):
+                    proxy.state = int(data[3])
                     return
                 
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
