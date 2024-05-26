@@ -276,10 +276,12 @@ class MessageHandler:
         return proxy_number
     
     def adapt_voltages(self):
-        threshold = 0.1 * self.get_proxy_number()
+        threshold = 0.2 * (self.get_proxy_number() - 1)
         for i in range(len(self.config.tileList)):
             value, index = self.config.tileList[i]
             self.config.tileList[i] = (value - threshold, index)
+
+        self.logger.info(f"(adapt_voltages) Adapted tile voltages to by {self.get_proxy_number()}.")
 
     def start(self):
         """
