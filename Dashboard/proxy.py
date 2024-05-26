@@ -1,7 +1,5 @@
 import time
 
-from config import Config
-
 
 class Proxy:
     """
@@ -10,14 +8,14 @@ class Proxy:
         Args:
             ID: The unique identifier for the proxy
         """
-    def __init__(self, ID):
+    def __init__(self, ID, config):
         self.position = None
         self.tile_value = None
         self.row_value = None
         self.col_value = None
         self.state = None
         self.is_plugged_in = None
-        self.config = Config()
+        self.config = config
         self.override = False
         self.ID = ID
         

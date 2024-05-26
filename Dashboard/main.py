@@ -3,25 +3,27 @@ import sys
 import time
 
 import serial
+from config import Config
 from lightController import LightController
 from logger import Logger
 from messageHandler import MessageHandler
 from proxy import Proxy
 
 logger = Logger("test.log")
+config = Config()
 
 # Initialize the LightController
 lightController = LightController('/dev/ttyUSB0', 9600, logger)
 
 # Proxy setup
-Proxy0 = Proxy(0)
-Proxy1 = Proxy(1)
-Proxy2 = Proxy(2)
-Proxy3 = Proxy(3)
+Proxy0 = Proxy(0, config)
+Proxy1 = Proxy(1, config)
+Proxy2 = Proxy(2, config)
+Proxy3 = Proxy(3, config)
 
 proxy_list = [Proxy0, Proxy1, Proxy2, Proxy3]
 # Initialize the MessageHandler
-messageHandler = MessageHandler('test.mosquitto.org', proxy_list, lightController, "dashboardAnimations", logger)
+messageHandler = MessageHandler('test.mosquitto.org', proxy_list, lightController, "dashboardAnimations", logger, config)
 
 # Start the MessageHandler
 messageHandler.start()

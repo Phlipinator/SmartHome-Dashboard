@@ -22,16 +22,17 @@ class MessageHandler:
 
     """
 
-    def __init__(self, broker_address, proxy_list, light_controller, animationTopic, logger):
+    def __init__(self, broker_address, proxy_list, light_controller, animationTopic, logger, config):
         self.broker_address = broker_address
         self.proxy_list = proxy_list
         self.light_controller = light_controller
         self.animationTopic = animationTopic
         self.logger = logger
+        self.config = config
 
         # Initialize proxy_data with one (0, 0, 0) tuple for each element in proxy_list
         self.proxy_data = [(0, 0, 0) for _ in proxy_list]
-
+        
         self.client = mqtt.Client()
 
         self.client.on_connect = self.on_connect
@@ -258,6 +259,26 @@ class MessageHandler:
         proxy.position = proxy_position
         self.handle_animation(proxy.ID, "coordinates")
         self.logger.info(f"(handle_manual_override) Manual override for Proxy {proxy.ID} with position {proxy_position}.")
+
+    def get_proxy_number(self):
+        """
+        Returns the number of connected proxies.
+
+        Returns:
+            int: The number of proxies.
+
+        """
+        proxy_number = 0
+        for proxy in self.proxy_list:
+            if proxy.is_plugged_in:
+                proxy_number += 1
+        return proxy_number
+    
+    def adapt_voltages(self):
+        threshold = 0.1 * self.get_proxy_number()
+        for i in range(len(self.config.tileList)):
+            value, index = self.config.tileList[i]
+            self.config.tileList[i] = (value - threshold, index)
 
     def start(self):
         """
