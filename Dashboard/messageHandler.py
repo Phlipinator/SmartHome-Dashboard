@@ -276,8 +276,23 @@ class MessageHandler:
         return proxy_number
     
     def adapt_voltages(self):
+        """
+        Adjusts the voltages of the tiles based on the proxy number.
+
+        The voltages of the tiles are adjusted by subtracting a threshold value
+        from each tile's voltage. The threshold is calculated as 0.1 times the
+        difference between the proxy number and 1.
+
+        Returns:
+            None
+
+        Example:
+            >>> handler = MessageHandler()
+            >>> handler.adapt_voltages()
+        """
         threshold = 0.1 * (self.get_proxy_number() - 1)
-        for i in range(len(self.config.tileList)):
+        length = len(self.config.tileList)
+        for i in length:
             value, index = self.config.tileList[i]
             self.config.tileList[i] = (value - threshold, index)
 
