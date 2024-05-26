@@ -19,8 +19,9 @@ Proxy1 = Proxy(1)
 Proxy2 = Proxy(2)
 Proxy3 = Proxy(3)
 
+proxy_list = [Proxy0, Proxy1, Proxy2, Proxy3]
 # Initialize the MessageHandler
-messageHandler = MessageHandler('test.mosquitto.org', [Proxy0, Proxy1, Proxy2, Proxy3], lightController, "dashboardAnimations", logger)
+messageHandler = MessageHandler('test.mosquitto.org', proxy_list, lightController, "dashboardAnimations", logger)
 
 # Start the MessageHandler
 messageHandler.start()
@@ -28,7 +29,17 @@ messageHandler.start()
 # Keep the main thread running
 try:
     while True:
-        time.sleep(1)
+        message = input()
+        payload = message.split(",")
+        if(len(payload) == 3):
+            proxy = proxy_list[int(payload[0])]
+            proxy_position = int(payload[1]), int(payload[2])
+            messageHandler.handle_manual_override(proxy, proxy_position)
+        elif(len(payload) == 1):
+            proxy = proxy_list[int(payload[0])]
+            print(f"Proxy {proxy.ID} is at position {proxy.position} with state {proxy.state}.")
+        else:
+            print("Invalid input, messages must be in format 'ID,x,y' to override the position or 'ID' to get the position.")
 except KeyboardInterrupt:
     # Graceful shutdown on Ctrl+C
     messageHandler.stop()

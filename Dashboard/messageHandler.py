@@ -51,11 +51,11 @@ class MessageHandler:
         self.logger.info(f"(on_connect) Connected with result code {rc}")
         # Subscribe to set_state and is_state topics for each proxy
         for proxy in self.proxy_list:
-            set_state_topic = f"set_state_proxy_{proxy.ID}"
-            is_state_topic = f"is_state_proxy_{proxy.ID}"
-            client.subscribe(set_state_topic)
-            client.subscribe(is_state_topic)
-            self.logger.info(f"(on_connect) Subscribed to {set_state_topic} and {is_state_topic}")
+            proxy_state_update_topic = f"proxy_state_update_proxy_{proxy.ID}"
+            hub_state_update_topic = f"hub_state_update_proxy_{proxy.ID}"
+            client.subscribe(proxy_state_update_topic)
+            client.subscribe(hub_state_update_topic)
+            self.logger.info(f"(on_connect) Subscribed to {proxy_state_update_topic} and {hub_state_update_topic}")
 
             # Subscribe to general animation topic for the hub
         client.subscribe(self.animationTopic)
@@ -101,7 +101,7 @@ class MessageHandler:
             return
         
         # Process based on topic type
-        if parts[0] == "set":
+        if parts[0] == "proxy":
             data = payload.split(",")
 
             if len(data) != 4:
@@ -110,14 +110,21 @@ class MessageHandler:
             
             if(data[3] == "x"):
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, False)
+                # Set override back to False, as the state can only be 'x' if the Proxy get freshly plugged in
+                proxy.override = False
             else:
+                # If the override flag is set, do not update the position
+                if(proxy.override):
+                    proxy.state = int(data[3])
+                    return
+                
                 proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
                 
-            self.compare_proxy_data(proxy, "set")
+            self.compare_proxy_data(proxy, "proxy")
 
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
-        elif parts[0] == "is":
+        elif parts[0] == "hub":
             try:
                 proxy.state = int(payload)
             except ValueError:
@@ -125,7 +132,7 @@ class MessageHandler:
                 return
             
             proxy.isConnected = True
-            self.compare_proxy_data(proxy, "is")
+            self.compare_proxy_data(proxy, "hub")
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with State {payload}.")
         else:
             self.logger.warning(f"(handle_message) Invalid topic '{topic}'.")
@@ -136,10 +143,10 @@ class MessageHandler:
 
         Args:
             proxy (object): The proxy object.
-            changeType (str): The type of change (either "set" or "is").
+            changeType (str): The type of change (either "proxy" or "hub").
 
         """
-        if change_type == "set":
+        if change_type == "proxy":
             # Extracting x and y coordinates from the position tuple
             proxy_row, proxy_col = proxy.position
 
@@ -152,7 +159,7 @@ class MessageHandler:
                 self.update_proxy_data(proxy)
             else:
                 return
-        elif change_type == "is":
+        elif change_type == "hub":
             if(proxy.state != self.proxy_data[proxy.ID][2]):
                 self.handle_animation(f"0, {proxy.ID}", "path")
                 self.update_proxy_data(proxy)
@@ -238,6 +245,20 @@ class MessageHandler:
         else:
             self.logger.warning(f"(handle_animation) Invalid animation type '{animation_type}'.")
 
+    def handle_manual_override(self, proxy, proxy_position):
+        """
+        Handles manual override of a proxy.
+
+        Args:
+            proxy (Proxy): The proxy object to override.
+            proxy_position (str): The new position of the proxy.
+
+        """
+        proxy.override = True
+        proxy.position = proxy_position
+        self.handle_animation(proxy.ID, "coordinates")
+        self.logger.info(f"(handle_manual_override) Manual override for Proxy {proxy.ID} with position {proxy_position}.")
+
     def start(self):
         """
         Starts the message handler.
@@ -255,4 +276,3 @@ class MessageHandler:
         self.client.loop_stop()
         self.client.disconnect()
         self.logger.info("Message Handler stopped.")
-        

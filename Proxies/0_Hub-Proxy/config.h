@@ -3,7 +3,7 @@
 
 // CHANGE PROXY ID HERE
 const int ID = 0;
-const String pubTopic = "set_state_proxy_" + String(ID);
+const String pubTopic = "proxy_state_update_proxy_" + String(ID);
 
 const char* ssid = "DashboardAP";
 const char* password = "muchPrivate";

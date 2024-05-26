@@ -17,8 +17,10 @@ class Proxy:
         self.col_value = None
         self.state = None
         self.is_plugged_in = None
-        self.ID = ID
         self.config = Config()
+        self.override = False
+        self.ID = ID
+        
 
     def update(self, tile, row, col, plugged_in, state = False):
         """
