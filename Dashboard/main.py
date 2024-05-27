@@ -39,7 +39,7 @@ try:
                 print(f"Proxy {proxy.ID} is at position {proxy.position} with state {proxy.state}.")
     
             except (ValueError, TypeError) as e:
-                logger.error(f"(safe_int_cast) Failed to cast '{value}' to int: {e}")
+                logger.error(f"(safe_int_cast) Failed to cast '{payload}' to int: {e}")
         else:
             print("Invalid input, messages must be in format 'ID,x,y' to override the position or 'ID' to get the position.")
 except KeyboardInterrupt:
