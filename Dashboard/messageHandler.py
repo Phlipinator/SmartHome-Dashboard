@@ -275,6 +275,8 @@ class MessageHandler:
             return
         
         proxy.position = int(parts[1]), int(parts[2])
+        proxy.plugged_in = True
+        
         self.handle_animation(proxy.ID, "coordinates")
         self.logger.info(f"(handle_manual_override) Manual override for Proxy {proxy.ID} with position {proxy.position}.")
 
