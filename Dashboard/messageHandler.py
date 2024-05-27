@@ -101,7 +101,7 @@ class MessageHandler:
         """
         # Extract the proxy ID from the topic
         parts = topic.split("_")
-        proxy_ID = int(parts[-1])
+        proxy_ID = self.safe_int_cast(parts[-1])
         
         # Find the proxy
         proxy = next((p for p in self.proxy_list if p.ID == proxy_ID), None)
@@ -119,16 +119,16 @@ class MessageHandler:
                 return
             
             if(data[3] == "x"):
-                proxy.update(int(data[0]), int(data[1]), int(data[2]), True, False)
+                proxy.update(self.safe_int_cast(data[0]), self.safe_int_cast(data[1]), self.safe_int_cast(data[2]), True, False)
                 # Set override back to False, as the state can only be 'x' if the Proxy get freshly plugged in
                 proxy.override = False
             else:
                 # If the override flag is set, do not update the position
                 if(proxy.override):
-                    proxy.state = int(data[3])
+                    proxy.state = self.safe_int_cast(data[3])
                     return
                 
-                proxy.update(int(data[0]), int(data[1]), int(data[2]), True, int(data[3]))
+                proxy.update(self.safe_int_cast(data[0]), self.safe_int_cast(data[1]), self.safe_int_cast(data[2]), True, self.safe_int_cast(data[3]))
                 
             self.compare_proxy_data(proxy, "proxy")
 
@@ -136,7 +136,7 @@ class MessageHandler:
             
         elif parts[0] == "hub":
             try:
-                proxy.state = int(payload)
+                proxy.state = self.safe_int_cast(payload)
             except ValueError:
                 self.logger.warning(f"(handle_message) Invalid payload '{payload}' format for 'is' message.")
                 return
@@ -208,8 +208,8 @@ class MessageHandler:
                 self.logger.warning(f"(handle_animation) Invalid payload '{payload}' format for path animation.")
                 return
 
-            start_proxy = next((p for p in self.proxy_list if p.ID == int(data[0])), None)
-            end_proxy = next((p for p in self.proxy_list if p.ID == int(data[1])), None)
+            start_proxy = next((p for p in self.proxy_list if p.ID == self.safe_int_cast(data[0])), None)
+            end_proxy = next((p for p in self.proxy_list if p.ID == self.safe_int_cast(data[1])), None)
 
             if start_proxy is None or end_proxy is None:
                 self.logger.warning(f"(handle_animation) Proxy IDs '{start_proxy.ID}' or '{end_proxy.ID}' not connected.")
@@ -235,7 +235,7 @@ class MessageHandler:
                 self.logger.warning(f"(handle_animation) Invalid payload '{payload}' format for coordinates animation.")
                 return
             
-            proxy = next((p for p in self.proxy_list if p.ID == int(payload)), None)
+            proxy = next((p for p in self.proxy_list if p.ID == self.safe_int_cast(payload)), None)
 
             if proxy is None:
                 self.logger.warning(f"(handle_animation) Proxy with ID {proxy.ID} not found.")
@@ -268,19 +268,35 @@ class MessageHandler:
             self.logger.warning(f"(on_message) Invalid payload '{payload}' format for 'override' message.")
             return
         
-        proxy = next((p for p in self.proxy_list if p.ID == int(parts[0])), None)
+        proxy = next((p for p in self.proxy_list if p.ID == self.safe_int_cast(parts[0])), None)
 
         if proxy is None:
             self.logger.warning(f"(on_message) Proxy with ID {parts[0]} not found.")
             return
         
-        proxy.position = int(parts[1]), int(parts[2])
+        proxy.position = self.safe_int_cast(parts[1]), self.safe_int_cast(parts[2])
         proxy.plugged_in = True
-        
+
         self.handle_animation(proxy.ID, "coordinates")
         self.logger.info(f"(handle_manual_override) Manual override for Proxy {proxy.ID} with position {proxy.position}.")
 
         proxy.override = True
+
+    def safe_int_cast(self, value):
+        """
+        Safely casts a value to an integer.
+
+        Args:
+            value (any): The value to be casted.
+
+        Returns:
+            int: The casted integer value, or the default value if casting fails.
+        """
+        try:
+            return int(value)
+        except (ValueError, TypeError) as e:
+            self.logger.error(f"(safe_int_cast) Failed to cast '{value}' to int: {e}")
+            return None
 
     def start(self):
         """
