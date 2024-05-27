@@ -290,7 +290,7 @@ class MessageHandler:
             value (any): The value to be casted.
 
         Returns:
-            int: The casted integer value, or the default value if casting fails.
+            int: The casted integer value, or None if casting fails.
         """
         try:
             return int(value)
