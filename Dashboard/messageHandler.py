@@ -22,16 +22,16 @@ class MessageHandler:
 
     """
 
-    def __init__(self, broker_address, proxy_list, light_controller, animationTopic, logger):
+    def __init__(self, broker_address, proxy_list, light_controller, animation_topic, override_topic, logger):
         self.broker_address = broker_address
         self.proxy_list = proxy_list
         self.light_controller = light_controller
-        self.animationTopic = animationTopic
+        self.animation_topic = animation_topic
+        self.override_topic = override_topic
         self.logger = logger
 
         # Initialize proxy_data with one (0, 0, 0) tuple for each element in proxy_list
         self.proxy_data = [(0, 0, 0) for _ in proxy_list]
-
         self.client = mqtt.Client()
 
         self.client.on_connect = self.on_connect
@@ -57,9 +57,13 @@ class MessageHandler:
             client.subscribe(hub_state_update_topic)
             self.logger.info(f"(on_connect) Subscribed to {proxy_state_update_topic} and {hub_state_update_topic}")
 
-            # Subscribe to general animation topic for the hub
-        client.subscribe(self.animationTopic)
-        self.logger.info(f"(on_connect) Subscribed to {self.animationTopic}")
+        # Subscribe to general animation topic for the hub
+        client.subscribe(self.animation_topic)
+        self.logger.info(f"(on_connect) Subscribed to {self.animation_topic}")
+
+        # Subscribe to the override topic for the hub
+        client.subscribe(self.override_topic)
+        self.logger.info(f"(on_connect) Subscribed to {self.override_topic}")
 
     def on_message(self, client, userdata, msg):
         """
@@ -75,8 +79,12 @@ class MessageHandler:
         payload = msg.payload.decode()
         self.logger.info(f"(on_message) Message received on topic {topic}: {payload}")
 
-        if(topic == self.animationTopic):
+        if(topic == self.animation_topic):
            self.handle_animation(payload, "path")
+
+        elif(topic == self.override_topic):
+            self.handle_manual_override(payload)
+
         else:
             self.handle_message(topic, payload)
 
@@ -245,19 +253,30 @@ class MessageHandler:
         else:
             self.logger.warning(f"(handle_animation) Invalid animation type '{animation_type}'.")
 
-    def handle_manual_override(self, proxy, proxy_position):
+    def handle_manual_override(self, payload):
         """
         Handles manual override of a proxy.
 
         Args:
-            proxy (Proxy): The proxy object to override.
-            proxy_position (str): The new position of the proxy.
+            payload (String): The payload of the override message in format 'ID,x,y'.
 
         """
-        proxy.override = True
-        proxy.position = proxy_position
+        parts = payload.split(",")
+        if len(parts) != 3:
+            self.logger.warning(f"(on_message) Invalid payload '{payload}' format for 'override' message.")
+            return
+        
+        proxy = next((p for p in self.proxy_list if p.ID == int(parts[0])), None)
+
+        if proxy is None:
+            self.logger.warning(f"(on_message) Proxy with ID {parts[0]} not found.")
+            return
+        
+        proxy.position = int(parts[1]), int(parts[2])
         self.handle_animation(proxy.ID, "coordinates")
-        self.logger.info(f"(handle_manual_override) Manual override for Proxy {proxy.ID} with position {proxy_position}.")
+        self.logger.info(f"(handle_manual_override) Manual override for Proxy {proxy.ID} with position {proxy.position}.")
+
+        proxy.override = True
 
     def start(self):
         """
