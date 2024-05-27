@@ -7,7 +7,7 @@ import serial
 
 class LightController:
     """
-    Class that controls the communication with the light controller ESP32.
+    A class that controls the communication with the light controller ESP32.
 
     Args:
         port (str): The serial port to connect to.
@@ -17,6 +17,7 @@ class LightController:
     Attributes:
         serial_port (serial.Serial): The serial port object for communication.
         message_queue (Queue): A queue to store the messages to be sent.
+        logger (Logger): The logger object for logging messages.
         delay (int): The minimum delay (in seconds) between sending messages.
         worker_thread (threading.Thread): The thread for sending messages.
 

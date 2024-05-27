@@ -5,11 +5,22 @@ from config import Config
 
 class Proxy:
     """
-        A class that stores the relevant data for a Proxy device.
+    A class that stores the relevant data for a Proxy device.
 
-        Args:
-            ID: The unique identifier for the proxy
-        """
+    Args:
+        ID (int): The unique identifier for the proxy.
+
+    Attributes:
+        position (tuple): The position of the proxy (initially None).
+        tile_value (int): The tile value associated with the proxy (initially None).
+        row_value (int): The row value associated with the proxy (initially None).
+        col_value (int): The column value associated with the proxy (initially None).
+        state (int): The state of the proxy (initially None).
+        is_plugged_in (bool): Indicates whether the proxy is plugged in (initially None).
+        config (Config): The configuration object for the proxy.
+        override (bool): Indicates if the proxy is in override mode (initially False).
+        ID (int): The unique identifier for the proxy.
+    """
     def __init__(self, ID):
         self.position = None
         self.tile_value = None

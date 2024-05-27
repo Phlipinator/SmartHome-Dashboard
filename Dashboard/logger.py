@@ -17,7 +17,6 @@ class Logger:
         logger.info("This is an informational message.")
         logger.warning("This is a warning message.")
         logger.error("This is an error message.")
-        logger.custom("DEBUG", "This is a debug message.")
     """
 
     def __init__(self, log_file):

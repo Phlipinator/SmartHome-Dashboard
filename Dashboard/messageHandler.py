@@ -8,18 +8,20 @@ class MessageHandler:
     Args:
         broker_address (str): The address of the MQTT broker.
         proxy_list (list): The list of used proxy objects.
-        light_controller (object): The objects that controls the light animations.
-        animationTopic (str): The general topic for animation messages from the hub.
+        light_controller (object): The object that controls the light animations.
+        animation_topic (str): The general topic for animation messages from the hub.
+        override_topic (str): The topic for manual override messages.
         logger (Logger): The logger object for logging messages.
 
     Attributes:
         broker_address (str): The address of the MQTT broker.
         proxy_list (list): A list of proxy objects.
-        light_controller (object): The objects that controls the light animations.
-        animationTopic (str): The general topic for animation messages from the hub.
+        light_controller (object): The object that controls the light animations.
+        animation_topic (str): The general topic for animation messages from the hub.
+        override_topic (str): The topic for manual override messages.
+        logger (Logger): The logger object for logging messages.
         proxy_data (list): A list that stores the data for each proxy for comparison.
-        client (mqtt.Client): The MQTT client.
-
+        client (mqtt.Client): The MQTT client instance.
     """
 
     def __init__(self, broker_address, proxy_list, light_controller, animation_topic, override_topic, logger):
