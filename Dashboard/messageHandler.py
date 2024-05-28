@@ -122,6 +122,7 @@ class MessageHandler:
                 proxy.update(self.safe_int_cast(data[0]), self.safe_int_cast(data[1]), self.safe_int_cast(data[2]), True, False)
                 # Set override back to False, as the state can only be 'x' if the Proxy get freshly plugged in
                 proxy.override = False
+
             else:
                 # If the override flag is set, do not update the position
                 if(proxy.override):
@@ -136,13 +137,8 @@ class MessageHandler:
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
         elif parts[0] == "hub":
-            try:
-                proxy.state = self.safe_int_cast(payload)
-            except ValueError:
-                self.logger.warning(f"(handle_message) Invalid payload '{payload}' format for 'is' message.")
-                return
+            proxy.state = self.safe_int_cast(payload)
             
-            proxy.isConnected = True
             self.compare_proxy_data(proxy, "hub")
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with State {payload}.")
         else:
