@@ -126,6 +126,7 @@ class MessageHandler:
                 # If the override flag is set, do not update the position
                 if(proxy.override):
                     proxy.state = self.safe_int_cast(data[3])
+                    self.compare_proxy_data(proxy, "proxy")
                     return
                 
                 proxy.update(self.safe_int_cast(data[0]), self.safe_int_cast(data[1]), self.safe_int_cast(data[2]), True, self.safe_int_cast(data[3]))
