@@ -8,7 +8,7 @@ from logger import Logger
 from messageHandler import MessageHandler
 from proxy import Proxy
 
-logger = Logger("test.log")
+logger = Logger()
 
 # Initialize the LightController
 lightController = LightController('/dev/ttyUSB0', 9600, logger)

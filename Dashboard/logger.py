@@ -19,7 +19,7 @@ class Logger:
         logger.error("This is an error message.")
     """
 
-    def __init__(self, log_file):
+    def __init__(self, log_file = datetime.datetime.now().strftime('%Y-%m-%d')):
         self.log_file = log_file
         # Create the log file if it doesn't exist
         if not os.path.exists(log_file):
