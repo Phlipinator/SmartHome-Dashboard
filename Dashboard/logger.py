@@ -1,81 +1,66 @@
 import datetime
+import logging
 import os
+from logging.handlers import TimedRotatingFileHandler
 
 
 class Logger:
     """
-    A class for logging messages to a file.
+    A custom logger class that logs messages to a file and prints them to the console.
 
     Args:
-        log_file (str): The path to the log file.
+        log_file (str, optional): The name of the log file. If not provided, a log file with the current date will be created.
 
     Attributes:
-        log_file (str): The path to the log file.
-
-    Example usage:
-        logger = Logger("application.log")
-        logger.info("This is an informational message.")
-        logger.warning("This is a warning message.")
-        logger.error("This is an error message.")
+        logger (logging.Logger): The logger object used for logging messages.
     """
 
-    def __init__(self, log_file = datetime.datetime.now().strftime('%Y-%m-%d') + ".log"):
-        self.log_file = log_file
-        # Create the log file if it doesn't exist
-        if not os.path.exists(log_file):
-            with open(log_file, 'w') as file:
-                print(f"Log file created: {log_file}")
-    
-    def write_log(self, level, message):
-        """
-        Write a log entry to the log file.
+    def __init__(self, log_file=None):
+        # Ensure the logs directory exists
+        log_dir = 'logs'
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
 
-        Args:
-            level (str): The log level (e.g., INFO, WARNING, ERROR).
-            message (str): The log message.
+        if log_file is None:
+            log_file = datetime.datetime.now().strftime('%Y-%m-%d') + ".log"
+        
+        log_file_path = os.path.join(log_dir, log_file)
+        self.logger = logging.getLogger("MyLogger")
+        self.logger.setLevel(logging.INFO)
+        handler = TimedRotatingFileHandler(log_file_path, when="midnight", interval=1)
+        handler.suffix = "%Y-%m-%d"
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
 
-        Returns:
-            None
-        """
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        with open(self.log_file, 'a') as file:
-            file.write(f"{timestamp} - {level} - {message}\n")
-    
     def info(self, message):
         """
-        Log an informational message.
+        Logs an info-level message.
 
         Args:
-            message (str): The log message.
-
-        Returns:
-            None
+            message (str): The message to be logged.
         """
-        self.write_log("[INFO]", message)
+        self.logger.info(message)
         print(f"[INFO] {message}")
-    
+
     def warning(self, message):
         """
-        Log a warning message.
+        Logs a warning-level message.
 
         Args:
-            message (str): The log message.
-
-        Returns:
-            None
+            message (str): The message to be logged.
         """
-        self.write_log("[WARNING]", message)
+        self.logger.warning(message)
         print(f"[WARNING] {message}")
-    
+
     def error(self, message):
         """
-        Log an error message.
+        Logs an error-level message.
 
         Args:
-            message (str): The log message.
-
-        Returns:
-            None
+            message (str): The message to be logged.
         """
-        self.write_log("[ERROR]", message)
+        self.logger.error(message)
         print(f"[ERROR] {message}")
+        
