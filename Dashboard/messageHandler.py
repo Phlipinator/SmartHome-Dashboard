@@ -159,16 +159,16 @@ class MessageHandler:
         if change_type == "proxy":
             # Extracting x and y coordinates from the position tuple
             proxy_row, proxy_col = proxy.position
-
-            if(proxy.override):
-                self.handle_animation(f"{proxy.ID}, 0", "path")
             
             if(proxy_row != self.proxy_data[proxy.ID][0] or proxy_col != self.proxy_data[proxy.ID][1]):
-                self.handle_animation(proxy.ID, "coordinates")
-                self.update_proxy_data(proxy)
+                if(proxy.override):
+                    self.handle_animation(f"{proxy.ID},0", "path")
+                else:   
+                    self.handle_animation(proxy.ID, "coordinates")
+                    self.update_proxy_data(proxy)
 
             elif(proxy.state != self.proxy_data[proxy.ID][2]):
-                self.handle_animation(f"{proxy.ID}, 0", "path")
+                self.handle_animation(f"{proxy.ID},0", "path")
                 self.update_proxy_data(proxy)
             else:
                 return
