@@ -63,3 +63,4 @@ class Logger:
         """
         self.logger.error(message)
         print(f"[ERROR] {message}")
+        
