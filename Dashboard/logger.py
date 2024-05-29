@@ -21,7 +21,7 @@ class Logger:
             os.makedirs(log_dir)
 
         if log_file is None:
-            log_file = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M') + "-"
+            log_file = "log-"
 
         log_file_path = os.path.join(log_dir, log_file)
         self.logger = logging.getLogger("MyLogger")
