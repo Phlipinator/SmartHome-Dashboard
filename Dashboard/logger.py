@@ -21,14 +21,14 @@ class Logger:
             os.makedirs(log_dir)
 
         if log_file is None:
-            log_file = datetime.datetime.now().strftime('%Y-%m-%d') + "-"
+            log_file = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M') + "-"
 
         log_file_path = os.path.join(log_dir, log_file)
         self.logger = logging.getLogger("MyLogger")
         self.logger.setLevel(logging.INFO)
 
         handler = TimedRotatingFileHandler(log_file_path, when="midnight", interval=1)
-        handler.suffix = "%Y-%m-%d"
+        handler.suffix = "%Y-%m-%d_%H-%M"
         handler.setLevel(logging.INFO)
         
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
