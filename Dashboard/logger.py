@@ -14,7 +14,6 @@ class Logger:
     Attributes:
         logger (logging.Logger): The logger object used for logging messages.
     """
-
     def __init__(self, log_file=None):
         # Ensure the logs directory exists
         log_dir = 'logs'
@@ -22,14 +21,16 @@ class Logger:
             os.makedirs(log_dir)
 
         if log_file is None:
-            log_file = datetime.datetime.now().strftime('%Y-%m-%d') + ".log"
-        
+            log_file = datetime.datetime.now().strftime('%Y-%m-%d') + "-"
+
         log_file_path = os.path.join(log_dir, log_file)
         self.logger = logging.getLogger("MyLogger")
         self.logger.setLevel(logging.INFO)
+
         handler = TimedRotatingFileHandler(log_file_path, when="midnight", interval=1)
         handler.suffix = "%Y-%m-%d"
         handler.setLevel(logging.INFO)
+        
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
@@ -63,4 +64,3 @@ class Logger:
         """
         self.logger.error(message)
         print(f"[ERROR] {message}")
-        
