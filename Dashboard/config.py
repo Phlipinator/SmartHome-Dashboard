@@ -71,5 +71,4 @@ class Config:
             (0.2, 4),
         ]
 
-        self.thresholds = {"tile": 0.15, "row": 0.5, "col": 0.5}
-        
+        self.thresholds = {"tile": 0.2, "row": 0.5, "col": 0.5}
