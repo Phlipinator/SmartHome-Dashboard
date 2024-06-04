@@ -89,18 +89,21 @@ class Proxy:
         voltage = self.calculate_voltage(raw_value, type)
         data_list = getattr(self.config, f"{type}List")
 
+        # Find the closest voltage match
+        closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+
         if ( type is "tile"):
             for voltage_level, number in data_list:
                 if voltage_level - 0.25 <= voltage <= voltage_level + 0.05:
                     return number
-            
-            # Find the closest voltage match
-            closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+
+            print("########################################")
+            print("RETURNING CLOSTEST MATCH FOR TILE VALUE")
+            print("########################################")
             return closest_match[1]
         
         else:
-            # Find the closest voltage match
-            closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+            # Return closest match for col and row
             return closest_match[1]
 
 
