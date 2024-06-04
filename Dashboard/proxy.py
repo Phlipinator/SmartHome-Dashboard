@@ -96,7 +96,7 @@ class Proxy:
 
         if ( type is "tile"):
             for voltage_level, number in data_list:
-                if voltage_level - 0.3 <= voltage <= voltage_level + 0.05:
+                if voltage_level - 0.25 <= voltage <= voltage_level + 0.05:
                     return number
 
             self.logger.warning("(convert_value) Returning fallback value for tile")
