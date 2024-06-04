@@ -104,7 +104,7 @@ class Proxy:
         
         else:
             for voltage_level, number in data_list:
-                if voltage_level - 1 <= voltage <= voltage_level + 0.05:
+                if voltage_level - 1.3 <= voltage <= voltage_level + 0.05:
                     return number
 
             self.logger.warning(f"(convert_value) Returning fallback value for {type}")
