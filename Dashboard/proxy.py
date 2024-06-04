@@ -84,23 +84,25 @@ class Proxy:
 
         Returns:
             The matched position number.
+            Returns 0 if no range matches.
         """
         voltage = self.calculate_voltage(raw_value, type)
         data_list = getattr(self.config, f"{type}List")
 
-        if type == "tile":
-            # Find the closest match beneath or slightly above the current voltage
-            closest_match = None
+        if ( type is "tile"):
             for voltage_level, number in data_list:
-                if voltage_level <= voltage:
-                    if closest_match is None or voltage_level > closest_match[0]: closest_match = (voltage_level, number)
+                if voltage_level - 0.25 <= voltage <= voltage_level + 0.05:
+                    return number
+            
+            # Find the closest voltage match
+            closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+            return closest_match[1]
+        
+        else:
+            # Find the closest voltage match
+            closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+            return closest_match[1]
 
-            if closest_match:
-                return closest_match[1]
-
-        # Default: Find the closest voltage match (used for "row" and "col" types)
-        closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
-        return closest_match[1]
 
     def apply_adjustments(self, tile, row, col):
         """
