@@ -14,10 +14,10 @@ logger = Logger()
 lightController = LightController('/dev/ttyUSB0', 9600, logger)
 
 # Proxy setup
-Proxy0 = Proxy(0)
-Proxy1 = Proxy(1)
-Proxy2 = Proxy(2)
-Proxy3 = Proxy(3)
+Proxy0 = Proxy(0, logger)
+Proxy1 = Proxy(1, logger)
+Proxy2 = Proxy(2, logger)
+Proxy3 = Proxy(3, logger)
 
 proxy_list = [Proxy0, Proxy1, Proxy2, Proxy3]
 # Initialize the MessageHandler

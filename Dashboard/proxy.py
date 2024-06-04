@@ -20,8 +20,9 @@ class Proxy:
         config (Config): The configuration object for the proxy.
         override (bool): Indicates if the proxy is in override mode (initially False).
         ID (int): The unique identifier for the proxy.
+        logger (Logger): The logger object for the proxy.
     """
-    def __init__(self, ID):
+    def __init__(self, ID, logger):
         self.position = None
         self.tile_value = None
         self.row_value = None
@@ -31,6 +32,7 @@ class Proxy:
         self.config = Config()
         self.override = False
         self.ID = ID
+        self.logger = logger
         
 
     def update(self, tile, row, col, plugged_in, state = False):
@@ -94,16 +96,18 @@ class Proxy:
 
         if ( type is "tile"):
             for voltage_level, number in data_list:
-                if voltage_level - 0.25 <= voltage <= voltage_level + 0.05:
+                if voltage_level - 0.3 <= voltage <= voltage_level + 0.05:
                     return number
 
-            print("########################################")
-            print("RETURNING CLOSTEST MATCH FOR TILE VALUE")
-            print("########################################")
+            self.logger.warning("(convert_value) Returning fallback value for tile")
             return closest_match[1]
         
         else:
-            # Return closest match for col and row
+            for voltage_level, number in data_list:
+                if voltage_level - 0.5 <= voltage <= voltage_level + 0.1:
+                    return number
+
+            self.logger.warning(f"(convert_value) Returning fallback value for {type}")
             return closest_match[1]
 
 
