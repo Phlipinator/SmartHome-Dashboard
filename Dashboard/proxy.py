@@ -20,8 +20,9 @@ class Proxy:
         config (Config): The configuration object for the proxy.
         override (bool): Indicates if the proxy is in override mode (initially False).
         ID (int): The unique identifier for the proxy.
+        logger (Logger): The logger object for the proxy.
     """
-    def __init__(self, ID):
+    def __init__(self, ID, logger):
         self.position = None
         self.tile_value = None
         self.row_value = None
@@ -31,6 +32,7 @@ class Proxy:
         self.config = Config()
         self.override = False
         self.ID = ID
+        self.logger = logger
         
 
     def update(self, tile, row, col, plugged_in, state = False):
@@ -76,25 +78,37 @@ class Proxy:
 
     def convert_value(self, raw_value, type):
         """
-        Match the correct position based on the closest voltage match.
+        Match the correct position based on the voltage.
 
         Args:
             raw_value: The raw value read from the ADC.
-            type: The type of pin ("tile", "row", or "col").
+            type: The type of voltage divider ("tile", "row", or "col").
 
         Returns:
             The matched position number.
-            Returns 0 if no predefined voltages are available.
+            Returns 0 if no range matches.
         """
         voltage = self.calculate_voltage(raw_value, type)
         data_list = getattr(self.config, f"{type}List")
 
-        if not data_list:
-            return 0
-
         # Find the closest voltage match
         closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
-        return closest_match[1]
+
+        if type == "tile":
+            for voltage_level, number in data_list:
+                if voltage_level - 0.22 <= voltage <= voltage_level + 0.05:
+                    return number
+
+            self.logger.warning("(convert_value) Returning fallback value for tile")
+            return closest_match[1]
+        
+        else:
+            for voltage_level, number in data_list:
+                if voltage_level - 1 <= voltage <= voltage_level + 0.05:
+                    return number
+
+            self.logger.warning(f"(convert_value) Returning fallback value for {type}")
+            return closest_match[1]
 
 
     def apply_adjustments(self, tile, row, col):
