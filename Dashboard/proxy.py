@@ -103,11 +103,7 @@ class Proxy:
             return closest_match[1]
         
         else:
-            for voltage_level, number in data_list:
-                if voltage_level - 0.5 <= voltage <= voltage_level + 0.1:
-                    return number
-
-            self.logger.warning(f"(convert_value) Returning fallback value for {type}")
+            # Return closest match for col and row
             return closest_match[1]
 
 
