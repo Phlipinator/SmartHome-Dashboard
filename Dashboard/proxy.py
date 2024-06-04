@@ -94,7 +94,7 @@ class Proxy:
         # Find the closest voltage match
         closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
 
-        if type is "tile":
+        if type == "tile":
             for voltage_level, number in data_list:
                 if voltage_level - 0.25 <= voltage <= voltage_level + 0.05:
                     return number
