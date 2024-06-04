@@ -86,7 +86,7 @@ class Proxy:
 
         Returns:
             The matched position number.
-            Returns 0 if no range matches.
+            Returns closest_match calculation if nothing matches
         """
         voltage = self.calculate_voltage(raw_value, type)
         data_list = getattr(self.config, f"{type}List")
