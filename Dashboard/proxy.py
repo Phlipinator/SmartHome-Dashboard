@@ -93,7 +93,10 @@ class Proxy:
         for voltage_level, number in data_list:
             if voltage_level - threshold <= voltage <= voltage_level + threshold:
                 return number
-        return 0
+        
+        # Find the closest voltage match
+        closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+        return closest_match[1]
 
 
     def apply_adjustments(self, tile, row, col):
