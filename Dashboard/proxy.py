@@ -76,25 +76,24 @@ class Proxy:
 
     def convert_value(self, raw_value, type):
         """
-        Match the correct position based on the closest voltage match.
+        Match the correct position based on the voltage.
 
         Args:
             raw_value: The raw value read from the ADC.
-            type: The type of pin ("tile", "row", or "col").
+            type: The type of voltage divider ("tile", "row", or "col").
 
         Returns:
             The matched position number.
-            Returns 0 if no predefined voltages are available.
+            Returns 0 if no range matches.
         """
         voltage = self.calculate_voltage(raw_value, type)
         data_list = getattr(self.config, f"{type}List")
+        threshold = self.config.thresholds[type]
 
-        if not data_list:
-            return 0
-
-        # Find the closest voltage match
-        closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
-        return closest_match[1]
+        for voltage_level, number in data_list:
+            if voltage_level - threshold <= voltage <= voltage_level + threshold:
+                return number
+        return None
 
 
     def apply_adjustments(self, tile, row, col):

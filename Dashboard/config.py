@@ -70,3 +70,6 @@ class Config:
             (1.5, 3),
             (0.2, 4),
         ]
+
+        self.thresholds = {"tile": 0.15, "row": 0.5, "col": 0.5}
+        
