@@ -90,13 +90,19 @@ class Proxy:
         data_list = getattr(self.config, f"{type}List")
         threshold = self.config.thresholds[type]
 
-        for voltage_level, number in data_list:
-            if voltage_level - threshold <= voltage <= voltage_level + threshold:
-                return number
+        if ( type is "tile"):
+            for voltage_level, number in data_list:
+                if voltage_level - threshold <= voltage <= voltage_level + threshold:
+                    return number
+            
+            # Find the closest voltage match
+            closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+            return closest_match[1]
         
-        # Find the closest voltage match
-        closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
-        return closest_match[1]
+        else:
+            # Find the closest voltage match
+            closest_match = min(data_list, key=lambda x: abs(x[0] - voltage))
+            return closest_match[1]
 
 
     def apply_adjustments(self, tile, row, col):
