@@ -93,7 +93,7 @@ class Proxy:
         for voltage_level, number in data_list:
             if voltage_level - threshold <= voltage <= voltage_level + threshold:
                 return number
-        return None
+        return 0
 
 
     def apply_adjustments(self, tile, row, col):
