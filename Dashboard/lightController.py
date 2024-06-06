@@ -32,7 +32,7 @@ class LightController:
         self.worker_thread.daemon = True  # Daemonize the thread so it will automatically stop when the main program exits
         self.worker_thread.start()
 
-    def send_messages(self):
+    def _send_messages(self):
         """
         A private method that continuously sends messages from the message queue.
 
@@ -70,4 +70,13 @@ class LightController:
         message = f"{x1},{y1},{x2},{y2}\n"
         self.message_queue.put(message)
         self.logger.info("(send_path) Path Message added to queue.")
+
+    def send_boot(self):
+        """
+        Adds a message for the boot-animation to start
         
+        """
+        message = "boot"
+        self.message_queue.put(message)
+        self.logger.info("(send_path) Path Message added to queue.")
+            
