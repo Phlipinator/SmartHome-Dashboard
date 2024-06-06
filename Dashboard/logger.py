@@ -3,8 +3,6 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-from systemd.journal import JournaldLogHandler
-
 
 class Logger:
     """
@@ -36,20 +34,6 @@ class Logger:
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
-
-        # instantiate the JournaldLogHandler to hook into systemd
-        journald_handler = JournaldLogHandler()
-
-        # set a formatter to include the level name
-        journald_handler.setFormatter(logging.Formatter(
-            '[%(levelname)s] %(message)s'
-        ))
-
-        # add the journald handler to the current logger
-        self.logger.addHandler(journald_handler)
-
-        # optionally set the logging level
-        self.logger.setLevel(logging.DEBUG)
 
     def info(self, message):
         """
