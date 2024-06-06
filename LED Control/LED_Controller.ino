@@ -6,7 +6,7 @@ const int MATRIX_SIZE = 16;
 const int SHORT_DELAY = 10;
 const int LONG_DELAY = 100;
 const int REPETITIONS = 6;
-const bool DEBUG = true;
+const bool DEBUG = false;
 
 #define LED_PIN 5
 #define NUM_LEDS 1151
@@ -16,7 +16,7 @@ CRGB leds[NUM_LEDS];
 
 const int relayPin = 13; // GPIO pin connected to the relay
 
-// Unique Positions of the LEDs in the 16 x 16 martix are stored here
+// Unique Positions of the LEDs in the 16 x 16 matrix are stored here
 int matrix[MATRIX_SIZE][MATRIX_SIZE][2] = {
     {{61, 62}, {58}, {55, 54}, {51}, {47}, {43, 44}, {40}, {36, 37}, {33}, {29}, {25, 26}, {22}, {18}, {15, 14}, {11}, {7, 8}},
     {{84}, {88}, {91, 92}, {95}, {98, 99}, {102}, {106}, {109, 110}, {113}, {116, 117}, {120}, {124}, {127, 128}, {131}, {134, 135}, {138}},
@@ -118,7 +118,7 @@ void LEDProcessing(int row, int col, bool activate)
             leds[matrix[row][col][1]] = CRGB::Red;
         }
 
-        // Check if LEDs should be turned on immedeatly
+        // Check if LEDs should be turned on immediately
         if (activate)
         {
             FastLED.show();
@@ -128,7 +128,7 @@ void LEDProcessing(int row, int col, bool activate)
     }
 }
 
-// Calculate Coordinates sourrounding any given position of the board
+// Calculate Coordinates surrounding any given position of the board
 void animateStart(int row, int col)
 {
     // Adjust to zero based indexing
@@ -146,6 +146,64 @@ void animateStart(int row, int col)
     delay(LONG_DELAY);
 
     // Clear all LEDs and update
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    FastLED.show();
+}
+
+// Animate a wave-pattern from the center of the matrix
+void animateBoot()
+{
+    // The center of the matrix for a 16x16 grid (2x2 center)
+    int centerRow1 = MATRIX_SIZE / 2 - 1;
+    int centerRow2 = MATRIX_SIZE / 2;
+    int centerCol1 = MATRIX_SIZE / 2 - 1;
+    int centerCol2 = MATRIX_SIZE / 2;
+
+    // The maximum distance from the center to the edges
+    int maxDistance = max(centerRow1, centerCol1);
+
+    // Loop through each layer of the wave
+    for (int distance = 0; distance <= maxDistance; distance++)
+    {
+        // Top and bottom rows of the current layer
+        for (int col = centerCol1 - distance; col <= centerCol2 + distance; col++)
+        {
+            if (centerRow1 - distance >= 0 && col >= 0 && col < MATRIX_SIZE)
+            {
+                LEDProcessing(centerRow1 - distance, col, false); // Top row 1
+                LEDProcessing(centerRow2 - distance, col, false); // Top row 2
+            }
+            if (centerRow1 + distance < MATRIX_SIZE && col >= 0 && col < MATRIX_SIZE)
+            {
+                LEDProcessing(centerRow1 + distance, col, false); // Bottom row 1
+                LEDProcessing(centerRow2 + distance, col, false); // Bottom row 2
+            }
+        }
+
+        // Left and right columns of the current layer
+        for (int row = centerRow1 - distance + 1; row < centerRow2 + distance; row++)
+        {
+            if (row >= 0 && row < MATRIX_SIZE && centerCol1 - distance >= 0)
+            {
+                LEDProcessing(row, centerCol1 - distance, false); // Left column 1
+                LEDProcessing(row, centerCol2 - distance, false); // Left column 2
+            }
+            if (row >= 0 && row < MATRIX_SIZE && centerCol1 + distance < MATRIX_SIZE)
+            {
+                LEDProcessing(row, centerCol1 + distance, false); // Right column 1
+                LEDProcessing(row, centerCol2 + distance, false); // Right column 2
+            }
+        }
+
+        // Show the current layer
+        FastLED.show();
+        delay(SHORT_DELAY); // Adjust delay as needed
+
+        // Clear the current layer before moving to the next
+        fill_solid(leds, NUM_LEDS, CRGB::Black);
+    }
+
+    // Ensure all LEDs are off at the end
     fill_solid(leds, NUM_LEDS, CRGB::Black);
     FastLED.show();
 }
@@ -191,6 +249,24 @@ void loop()
                 delay(50);
                 digitalWrite(relayPin, LOW);
             }
+        }
+        else if (data == "boot")
+        {
+            if (DEBUG)
+            {
+                Serial.println("Performing boot animation.");
+            }
+
+            digitalWrite(relayPin, HIGH);
+            delay(10);
+            animateBoot();
+            delay(5);
+            animateBoot();
+            delay(5);
+            animateBoot();
+            delay(50);
+            digitalWrite(relayPin, LOW);
+            
         }
         else
         {
