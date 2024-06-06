@@ -26,6 +26,8 @@ messageHandler = MessageHandler('test.mosquitto.org', proxy_list, lightControlle
 # Start the MessageHandler
 messageHandler.start()
 
+lightController.send_messages("boot")
+
 # Keep the main thread running
 try:
     while True:

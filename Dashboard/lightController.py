@@ -32,7 +32,7 @@ class LightController:
         self.worker_thread.daemon = True  # Daemonize the thread so it will automatically stop when the main program exits
         self.worker_thread.start()
 
-    def _send_messages(self):
+    def send_messages(self):
         """
         A private method that continuously sends messages from the message queue.
 
