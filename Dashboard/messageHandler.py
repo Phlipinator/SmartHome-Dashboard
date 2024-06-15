@@ -145,7 +145,14 @@ class MessageHandler:
         elif parts[0] == "hub":
             # Check if the payload is a valid state
             state = self.safe_int_cast(payload)
-            if state == None or state != 1 or state != 2 or state != 3:
+            if (state == None):
+                self.logger.info(f"(handle_message) Invalid state '{payload}'.")
+                return
+            
+            if (state == 1 or state == 2 or state == 3):
+                # do nothing
+                pass
+            else:
                 self.logger.info(f"(handle_message) Invalid state '{payload}'.")
                 return
 
