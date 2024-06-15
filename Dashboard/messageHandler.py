@@ -82,7 +82,7 @@ class MessageHandler:
         try:
             payload = msg.payload.decode()
         except Exception as e:
-            self.logger.error("(on_message) Failed to decode payload")
+            self.logger.error("(on_message) Failed to decode payload.")
             return
 
         self.logger.info(f"(on_message) Message received on topic {topic}: {payload}")
