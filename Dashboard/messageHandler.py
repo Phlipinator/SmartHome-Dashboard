@@ -78,7 +78,13 @@ class MessageHandler:
 
         """
         topic = msg.topic
-        payload = msg.payload.decode()
+        
+        try:
+            payload = msg.payload.decode()
+        except Exception as e:
+            self.logger.error("(on_message) Failed to decode payload")
+            return
+
         self.logger.info(f"(on_message) Message received on topic {topic}: {payload}")
 
         if(topic == self.animation_topic):
