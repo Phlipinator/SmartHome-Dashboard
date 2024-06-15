@@ -78,7 +78,13 @@ class MessageHandler:
 
         """
         topic = msg.topic
-        payload = msg.payload.decode()
+        
+        try:
+            payload = msg.payload.decode()
+        except Exception as e:
+            self.logger.error("(on_message) Failed to decode payload.")
+            return
+
         self.logger.info(f"(on_message) Message received on topic {topic}: {payload}")
 
         if(topic == self.animation_topic):
@@ -137,7 +143,16 @@ class MessageHandler:
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
         elif parts[0] == "hub":
-            proxy.state = self.safe_int_cast(payload)
+            # Check if the payload is a valid state
+            state = self.safe_int_cast(payload)
+            if state == None or state != 1 or state != 2 or state != 3:
+                self.logger.info(f"(handle_message) Invalid state '{payload}'.")
+                return
+
+            proxy.state = state
+
+            if proxy.state == None:
+                return
             
             self.compare_proxy_data(proxy, "hub")
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with State {payload}.")
@@ -212,7 +227,7 @@ class MessageHandler:
             end_proxy = next((p for p in self.proxy_list if p.ID == self.safe_int_cast(data[1])), None)
 
             if start_proxy is None or end_proxy is None:
-                self.logger.warning(f"(handle_animation) Proxy IDs '{start_proxy.ID}' or '{end_proxy.ID}' not connected.")
+                self.logger.warning(f"(handle_animation) Proxy IDs not connected or invalid.")
                 return
             
             if(start_proxy.position is None or end_proxy.position is None):
