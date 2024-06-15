@@ -137,7 +137,16 @@ class MessageHandler:
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with TileValue {data[0]}, rowValue {data[1]}, colValue {data[2]} and State {data[3]}.")
             
         elif parts[0] == "hub":
-            proxy.state = self.safe_int_cast(payload)
+            # Check if the payload is a valid state
+            state = self.safe_int_cast(payload)
+            if state == None or state != 1 or state != 2 or state != 3:
+                self.logger.info(f"(handle_message) Invalid state '{payload}'.")
+                return
+
+            proxy.state = state
+
+            if proxy.state == None:
+                return
             
             self.compare_proxy_data(proxy, "hub")
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with State {payload}.")
