@@ -145,7 +145,7 @@ class MessageHandler:
         elif parts[0] == "hub":
             # Check if the payload is a valid state
             state = self.safe_int_cast(payload)
-            if (state == None):
+            if (state is None):
                 self.logger.info(f"(handle_message) Invalid state '{payload}'.")
                 return
             
@@ -157,9 +157,6 @@ class MessageHandler:
                 return
 
             proxy.state = state
-
-            if proxy.state == None:
-                return
             
             self.compare_proxy_data(proxy, "hub")
             self.logger.info(f"(handle_message) Updated Proxy {proxy_ID} with State {payload}.")
