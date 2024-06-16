@@ -82,7 +82,7 @@ class MessageHandler:
         try:
             payload = msg.payload.decode()
         except Exception as e:
-            self.logger.error("(on_message) Failed to decode payload.")
+            self.logger.error(f"(on_message) Failed to decode payload: {e}")
             return
 
         self.logger.info(f"(on_message) Message received on topic {topic}: {payload}")
@@ -231,7 +231,7 @@ class MessageHandler:
             end_proxy = next((p for p in self.proxy_list if p.ID == self.safe_int_cast(data[1])), None)
 
             if start_proxy is None or end_proxy is None:
-                self.logger.warning(f"(handle_animation) Proxy IDs not connected or invalid.")
+                self.logger.warning("(handle_animation) Proxy IDs not connected or invalid.")
                 return
             
             if(start_proxy.position is None or end_proxy.position is None):
