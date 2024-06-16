@@ -149,7 +149,7 @@ class MessageHandler:
                 self.logger.info(f"(handle_message) Invalid state '{payload}'.")
                 return
             
-            if (state == 1 or state == 2 or state == 3):
+            if (state == 0 or state == 1 or state == 2):
                 # do nothing
                 pass
             else:
