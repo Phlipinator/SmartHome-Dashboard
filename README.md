@@ -11,3 +11,5 @@ Contains the code with all libraries for all 4 Proxies.
 - 1: Lamp Icon
 - 2: Plug Icon
 - 3: Sensor Icon
+## CAD
+Contains STL files for all relevant parts of the prototype as well as a Fusion360 file.

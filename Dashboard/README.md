@@ -9,7 +9,7 @@ For the LED-control to work properly, you need to modify some settings in the co
 Instructions on how to do that can be found [here](https://medium.com/@fredbonjour/connect-multiple-micro-controllers-to-one-raspberry-pi-over-usb-with-a-reliable-identification-21e41db514a7).
 
 ## Log
-During execution the program automatically adds every event into a log-file. Make sure to change the output location in the *main.py* file.
+During execution the program automatically adds every event into a log-file. If needed, the location for the log files can be changed in the *main.py* file. Per default they get saved in the *logs* folder.
 The Line should look like this:
 
-**logger = Logger("test.log")**
+**self.logger = Logger.info("test.log")**
