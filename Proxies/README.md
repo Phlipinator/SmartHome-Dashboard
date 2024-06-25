@@ -1,5 +1,6 @@
 # Wiring
 The Proxies and the code are built around the ESP32-WROOM-32U board.
+
 ![Wiring Diagram](Wiring_Diagram.png "Wiring Diagram")
 
 The Gerber-File can be used to oder PCBs from any supplier.
