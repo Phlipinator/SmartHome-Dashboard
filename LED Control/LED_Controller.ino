@@ -229,12 +229,13 @@ void loop()
             for (int i = 0; i < REPETITIONS; i++)
             {
                 digitalWrite(relayPin, HIGH);
+                delay(10);
                 animateTrail(r1, c1, r2, c2);
                 delay(50);
                 digitalWrite(relayPin, LOW);
             }
-            // Check if the input contains one set of coordinates
         }
+        // Check if the input contains one set of coordinates
         else if (coords == 2)
         {
             if (DEBUG)
