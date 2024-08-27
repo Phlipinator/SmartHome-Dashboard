@@ -46,7 +46,7 @@ void setup()
 }
 
 // Calculates a route between two sets of coordinates
-void animateTrail(int r1, int c1, int r2, int c2)
+void animateTrail(int r1, int c1, int r2, int c2, bool stayOn = false)
 {
     // Adjusting to zero-based indexing
     r1--;
@@ -66,7 +66,7 @@ void animateTrail(int r1, int c1, int r2, int c2)
         {
             for (int c = c1; c <= c2; c++)
             {
-                LEDProcessing(r1, c, true);
+                LEDProcessing(r1, c, !stayOn);
             }
             c1 = c2;
         }
@@ -74,7 +74,7 @@ void animateTrail(int r1, int c1, int r2, int c2)
         {
             for (int c = c1; c >= c2; c--)
             {
-                LEDProcessing(r1, c, true);
+                LEDProcessing(r1, c, !stayOn);
             }
             c1 = c2;
         }
@@ -84,21 +84,23 @@ void animateTrail(int r1, int c1, int r2, int c2)
         {
             for (int r = r1; r <= r2; r++)
             {
-                LEDProcessing(r, c1, true);
+                LEDProcessing(r, c1, !stayOn);
             }
         }
         else
         {
             for (int r = r1; r >= r2; r--)
             {
-                LEDProcessing(r, c1, true);
+                LEDProcessing(r, c1, !stayOn);
             }
         }
     }
 
-    // Set all LEDs to black, because FastLED.clear() doesn't work here for some reason
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
-    FastLED.show();
+    if (!stayOn){
+        // Set all LEDs to black, because FastLED.clear() doesn't work here for some reason
+        fill_solid(leds, NUM_LEDS, CRGB::Black);
+        FastLED.show();
+    }
 }
 
 // Turn LED(s) for any given position on
@@ -213,10 +215,12 @@ void loop()
     if (Serial.available())
     {
         String data = Serial.readStringUntil('\n');
-        int r1, c1, r2, c2;
+        int r1, c1, r2, c2, stayOn;
 
         // Try to parse two pairs of coordinates
-        int coords = sscanf(data.c_str(), "%d,%d,%d,%d", &r1, &c1, &r2, &c2);
+        int coords = sscanf(data.c_str(), "%d,%d,%d,%d,%d", &r1, &c1, &r2, &c2, &stayOn);
+
+        FastLED.clear();
 
         // Check if the input contains two sets of coordinates
         if (coords == 4)
@@ -251,6 +255,14 @@ void loop()
                 digitalWrite(relayPin, LOW);
             }
         }
+        else if (coords == 5)
+        {
+            digitalWrite(relayPin, HIGH);
+            delay(10);
+            animateTrail(r1, c1, r2, c2, true);
+            delay(10);
+            FastLED.show(); 
+        }
         else if (data == "boot")
         {
             if (DEBUG)
@@ -275,6 +287,10 @@ void loop()
             {
                 Serial.println("Invalid input. Please provide both sets of coordinates.");
             }
+
+            // This condition is also used to turn of the LEDs after the showcase functionality has been used
+            FastLED.clear();
+            digitalWrite(relayPin, LOW);
         }
     }
 }
